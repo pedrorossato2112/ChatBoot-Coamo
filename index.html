@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assistente Virtual APPLOG</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>APPLOG - Assistente Virtual</h1>
+    </header>
+
+    <main id="chat-container">
+      <div id="chat"></div>
+
+      <div class="input-container">
+        <input type="text" id="userInput" placeholder="Digite sua mensagem..." />
+        <button onclick="sendMessage()">Enviar</button>
+        <button id="btnAjuda">Ajuda</button>
+      </div>
+    </main>
+
+    <footer>
+      <button id="clearChatButton" onclick="clearChat()">🗑 Limpar conversa</button>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
