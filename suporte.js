@@ -45,7 +45,7 @@ messagesRef.on('child_added', snapshot => {
 
 // Defina o tipo de usuário aqui: 'suporte' ou 'cliente'
 // Você pode trocar para 'cliente' se quiser testar do lado do cliente.
-const userType = 'suporte';
+const userType = 'cliente';
 
 btnSend.addEventListener('click', () => {
   const text = inputMsg.value.trim();
@@ -57,3 +57,4 @@ btnSend.addEventListener('click', () => {
 inputMsg.addEventListener('keydown', e => {
   if (e.key === 'Enter') btnSend.click();
 });
+
