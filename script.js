@@ -125,7 +125,7 @@ function sendMessage() {
   input.value = "";
 }
 document.getElementById("btnAjuda").addEventListener("click", function() {
-  window.location.href = "Suporte.html";
+  window.location.href = "suporte.html";
 });
 
 
@@ -150,4 +150,5 @@ function etapaFinal(opcao) {
     }
   }, 500);
 }
+
 
