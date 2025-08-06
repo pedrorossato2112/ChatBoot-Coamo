@@ -1,18 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPORTE</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat Suporte - APPLOG</title>
+  <link rel="stylesheet" href="suporte.css" />
 </head>
 <body>
-    <h1 class="ola">Heloo world!</h1>
 
-    <script src="Suporte.js"></script>
+  <h1>Chat Suporte APPLOG</h1>
 
-    <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <div id="chat-box"></div>
 
+  <div id="input-container">
+    <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autofocus />
+    <button id="btn-send">Enviar</button>
+  </div>
+
+  <script src="suporte.js"></script>
 </body>
 </html>
