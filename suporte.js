@@ -1,60 +1,45 @@
-// Configuração Firebase - coloque aqui as suas chaves do Firebase
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_DOMINIO.firebaseapp.com",
-  databaseURL: "https://SEU_DOMINIO.firebaseio.com",
-  projectId: "SEU_PROJETO_ID",
-  storageBucket: "SEU_BUCKET.appspot.com",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID"
+// Configuração do Firebase
+var firebaseConfig = {
+  apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
+  authDomain: "chatboot--coamo.firebaseapp.com",
+  databaseURL: "https://chatboot--coamo-default-rtdb.firebaseio.com",
+  projectId: "chatboot--coamo",
+  storageBucket: "chatboot--coamo.appspot.com",
+  messagingSenderId: "328474991416",
+  appId: "1:328474991416:web:cd61d9ac5377b6a4ab3fcd",
+  measurementId: "G-4QH32PWFM4"
 };
 
-// Inicializa Firebase
+// Inicializa o Firebase
 firebase.initializeApp(firebaseConfig);
+
+// Referência ao banco de dados
 const db = firebase.database();
-const messagesRef = db.ref("chat");
+const messagesRef = db.ref("mensagens");
 
-// Referências DOM
-const chatBox = document.getElementById('chat-box');
-const inputMsg = document.getElementById('input-msg');
-const btnSend = document.getElementById('btn-send');
+// Elementos
+const input = document.getElementById("input-msg");
+const sendBtn = document.getElementById("btn-send");
+const chatBox = document.getElementById("chat-box");
 
-// Função para adicionar mensagem na tela
-function appendMessage(text, sender) {
-  const div = document.createElement('div');
-  div.classList.add('message', sender);
-  div.textContent = text;
+// Envia mensagem
+sendBtn.addEventListener("click", () => {
+  const texto = input.value.trim();
+  if (texto !== "") {
+    const novaMensagem = {
+      texto: texto,
+      timestamp: Date.now()
+    };
+    messagesRef.push(novaMensagem);
+    input.value = "";
+  }
+});
+
+// Exibe mensagens em tempo real
+messagesRef.on("child_added", (snapshot) => {
+  const msg = snapshot.val();
+  const div = document.createElement("div");
+  div.textContent = msg.texto;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// Enviar mensagem para o Firebase
-function sendMessage(userType, text) {
-  messagesRef.push({
-    user: userType,
-    text: text,
-    timestamp: Date.now()
-  });
-}
-
-// Ouvir novas mensagens no Firebase
-messagesRef.on('child_added', snapshot => {
-  const msg = snapshot.val();
-  appendMessage(`${msg.user}: ${msg.text}`, msg.user);
 });
-
-// Defina o tipo de usuário aqui: 'suporte' ou 'cliente'
-// Você pode trocar para 'cliente' se quiser testar do lado do cliente.
-const userType = 'cliente';
-
-btnSend.addEventListener('click', () => {
-  const text = inputMsg.value.trim();
-  if (!text) return;
-  sendMessage(userType, text);
-  inputMsg.value = "";
-});
-
-inputMsg.addEventListener('keydown', e => {
-  if (e.key === 'Enter') btnSend.click();
-});
-
