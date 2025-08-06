@@ -1,5 +1,6 @@
 # ChatBoot-coamo
 Chat boot para atender trabalhadores e cooperados,
+
 O intuito deste site é para que os cooperados e trabalhadores da COAMO tenham acesso mais facil e pratico ao Suporte de sua empresa.
 
 # COMO FUNCIONA?
