@@ -125,7 +125,7 @@ function sendMessage() {
   input.value = "";
 }
 document.getElementById("btnAjuda").addEventListener("click", function() {
-  window.location.href = "Atendente_Real/index.html";
+  window.location.href = "index.html";
 });
 
 
