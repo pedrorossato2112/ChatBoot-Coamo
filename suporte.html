@@ -6,21 +6,40 @@
   <title>Chat Suporte - APPLOG</title>
   <link rel="stylesheet" href="suporte.css" />
   
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs - versão 8 (compatível com o modo global que você está usando) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- Firebase Configuração e Inicialização -->
+  <script>
+    // Configuração do Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
+      authDomain: "chatboot--coamo.firebaseapp.com",
+      databaseURL: "https://chatboot--coamo-default-rtdb.firebaseio.com",
+      projectId: "chatboot--coamo",
+      storageBucket: "chatboot--coamo.appspot.com",
+      messagingSenderId: "328474991416",
+      appId: "1:328474991416:web:cd61d9ac5377b6a4ab3fcd",
+      measurementId: "G-4QH32PWFM4"
+    };
+
+    // Inicializa Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
 
   <h1>Chat Suporte APPLOG</h1>
 
-  <div id="chat-box"></div>
+  <div id="chat-box" style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
 
   <div id="input-container">
     <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autofocus />
     <button id="btn-send">Enviar</button>
   </div>
 
+  <!-- Seu script do chat -->
   <script src="suporte.js"></script>
 </body>
 </html>
