@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat Suporte - APPLOG</title>
+  <title>Chat Cliente - APPLOG</title>
   <link rel="stylesheet" href="suporte.css" />
-  
+
   <!-- Firebase SDKs v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -27,7 +27,7 @@
 </head>
 <body>
 
-  <h1>Chat Suporte APPLOG</h1>
+  <h1>Chat Cliente APPLOG</h1>
 
   <div id="chat-box" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
 
@@ -37,14 +37,16 @@
   </div>
 
   <script>
+    // Referências
     const db = firebase.database();
     const messagesRef = db.ref("chatmensagens");
     const chatBox = document.getElementById("chat-box");
     const inputMsg = document.getElementById("input-msg");
     const btnSend = document.getElementById("btn-send");
 
-    const userType = "suporte"; // lado suporte
+    const userType = "cliente"; // Define que este lado é cliente
 
+    // Função para adicionar mensagem no chat
     function addMessage(text, sender) {
       const div = document.createElement("div");
       div.textContent = text;
@@ -58,11 +60,13 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
+    // Escuta mensagens em tempo real
     messagesRef.on("child_added", (snapshot) => {
       const msg = snapshot.val();
       addMessage(msg.texto, msg.sender);
     });
 
+    // Envia mensagem ao Firebase
     btnSend.addEventListener("click", () => {
       const texto = inputMsg.value.trim();
       if (texto === "") return;
@@ -74,12 +78,78 @@
       inputMsg.value = "";
     });
 
+    // Enviar ao apertar Enter
     inputMsg.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         btnSend.click();
       }
     });
   </script>
+
+  <style>
+    /* Coloque aqui o conteúdo do suporte.css para o chat ficar bonitão */
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #4A90E2;
+    }
+    #chat-box {
+      border: 1px solid #ccc;
+      height: 400px;
+      overflow-y: auto;
+      background: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+    .message {
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      max-width: 70%;
+      clear: both;
+    }
+    .cliente {
+      background-color: #d1e7dd;
+      float: right;
+      text-align: right;
+    }
+    .suporte {
+      background-color: #e2e3e5;
+      float: left;
+      text-align: left;
+    }
+    #input-container {
+      display: flex;
+      gap: 8px;
+    }
+    #input-msg {
+      flex-grow: 1;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    #btn-send {
+      background-color: #4A90E2;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #btn-send:hover {
+      background-color: #357ABD;
+    }
+  </style>
 
 </body>
 </html>

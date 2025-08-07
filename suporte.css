@@ -5,10 +5,12 @@ body {
   padding: 10px;
   background: #f9f9f9;
 }
+
 h1 {
   text-align: center;
   color: #4A90E2;
 }
+
 #chat-box {
   border: 1px solid #ccc;
   height: 400px;
@@ -18,6 +20,7 @@ h1 {
   margin-bottom: 10px;
   border-radius: 6px;
 }
+
 .message {
   margin-bottom: 12px;
   padding: 8px 12px;
@@ -25,20 +28,26 @@ h1 {
   max-width: 70%;
   clear: both;
 }
+
+/* Mensagens do cliente */
 .cliente {
   background-color: #d1e7dd;
   float: right;
   text-align: right;
 }
+
+/* Mensagens do suporte */
 .suporte {
   background-color: #e2e3e5;
   float: left;
   text-align: left;
 }
+
 #input-container {
   display: flex;
   gap: 8px;
 }
+
 #input-msg {
   flex-grow: 1;
   padding: 8px 12px;
@@ -46,6 +55,7 @@ h1 {
   border: 1px solid #ccc;
   font-size: 16px;
 }
+
 #btn-send {
   background-color: #4A90E2;
   border: none;
@@ -56,6 +66,7 @@ h1 {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 #btn-send:hover {
   background-color: #357ABD;
 }
