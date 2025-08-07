@@ -1,9 +1,6 @@
-// já inicializado no HTML (firebase.initializeApp)
-
 const db = firebase.database();
 const messagesRef = db.ref("mensagens");
 
-// Pergunta quem está usando (suporte ou cliente)
 const sender = prompt("Quem está usando este chat? Digite 'suporte' ou 'cliente':")?.toLowerCase() || "cliente";
 
 const input = document.getElementById("input-msg");
