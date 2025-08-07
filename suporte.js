@@ -21,7 +21,7 @@ function sendMessage() {
   if (!text) return;
 
   // Aqui você pode definir o tipo de usuário, ex: "suporte"
-  const sender = "suporte";
+  const sender = "cliente";
 
   // Salvar no Firebase
   messagesRef.push({
