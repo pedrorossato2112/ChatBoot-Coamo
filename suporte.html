@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chat Suporte - APPLOG</title>
   <link rel="stylesheet" href="suporte.css" />
-  
-  <!-- Firebase SDKs v8 -->
+
+  <!-- Firebase SDK v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- Inicialização Firebase -->
   <script>
+    // Configuração Firebase (coloque suas chaves aqui)
     var firebaseConfig = {
       apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
       authDomain: "chatboot--coamo.firebaseapp.com",
@@ -22,6 +22,7 @@
       appId: "1:328474991416:web:cd61d9ac5377b6a4ab3fcd",
       measurementId: "G-4QH32PWFM4"
     };
+    // Inicializa Firebase
     firebase.initializeApp(firebaseConfig);
   </script>
 </head>
@@ -29,57 +30,13 @@
 
   <h1>Chat Suporte APPLOG</h1>
 
-  <div id="chat-box" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+  <div id="chat-box"></div>
 
   <div id="input-container">
     <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autofocus />
     <button id="btn-send">Enviar</button>
   </div>
 
-  <script>
-    const db = firebase.database();
-    const messagesRef = db.ref("chatmensagens");
-    const chatBox = document.getElementById("chat-box");
-    const inputMsg = document.getElementById("input-msg");
-    const btnSend = document.getElementById("btn-send");
-
-    const userType = "suporte"; // lado suporte
-
-    function addMessage(text, sender) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      div.classList.add("message");
-      if (sender === "cliente") {
-        div.classList.add("cliente");
-      } else if (sender === "suporte") {
-        div.classList.add("suporte");
-      }
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    messagesRef.on("child_added", (snapshot) => {
-      const msg = snapshot.val();
-      addMessage(msg.texto, msg.sender);
-    });
-
-    btnSend.addEventListener("click", () => {
-      const texto = inputMsg.value.trim();
-      if (texto === "") return;
-      messagesRef.push({
-        texto: texto,
-        sender: userType,
-        timestamp: Date.now()
-      });
-      inputMsg.value = "";
-    });
-
-    inputMsg.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        btnSend.click();
-      }
-    });
-  </script>
-
+  <script src="suporte.js"></script>
 </body>
 </html>
