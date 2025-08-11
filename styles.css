@@ -24,7 +24,7 @@ body {
 }
 
 header {
-  background: #2E75B6;
+  background: #008000;
   color: white;
   padding: 1rem;
   text-align: center;
@@ -93,7 +93,7 @@ header h1 {
 }
 
 .option-button:hover {
-  background-color: #2E75B6;
+  background-color: #008000;
 }
 
 .input-container {
@@ -112,7 +112,7 @@ header h1 {
 }
 
 .input-container button {
-  background-color: #2E75B6;
+  background-color: #008000;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -159,4 +159,5 @@ footer {
   .input-container button {
     padding: 12px;
   }
+
 }
