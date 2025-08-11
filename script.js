@@ -89,7 +89,7 @@ function etapaInicial(topico) {
 function etapaFinal(opcao) {
   addMessage("Você", `Opção escolhida: ${opcao}`, "user");
   setTimeout(() => {
-    addMessage("Assistente", `Você escolheu "${opcao}". Em breve entraremos em contato ou forneceremos mais informações.`, "bot","Sua solicitação foi registrada. Retornaremos o mais rápido possível.");
+    addMessage("Assistente", `Você escolheu "${opcao}". Em breve entraremos em contato ou forneceremos mais informações.`, "bot","Sua solicitação foi registrada. Retornaremos o mais rápido possível.","Estamos analisando seu pedido e enviaremos novas informações em breve.","Estamos analisando sua mensagem e entraremos em contato assim que possível.","Em breve enviaremos um retorno detalhado sobre sua solicitação.","Nossa equipe está trabalhando para lhe responder rapidamente.","Aguardamos a finalização da análise e entraremos em contato.","Retornaremos com um posicionamento em breve.","Em breve, enviaremos atualizações referentes ao seu caso.","Sua mensagem foi registrada. Nossa equipe retornará logo.","Em breve, você receberá mais detalhes por e-mail.");
   }, 500);
 }
 
@@ -150,6 +150,7 @@ function etapaFinal(opcao) {
     }
   }, 500);
 }
+
 
 
 
