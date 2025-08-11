@@ -36,12 +36,18 @@ function gerarIdConversa(usuario1, usuario2) {
   return [usuario1, usuario2].sort().join('_');
 }
 
+// Atualizado para setDoc com merge: true para criar/atualizar o doc corretamente
 async function atualizarDigitando(status) {
   if (!conversaIdAtual || !auth.currentUser) return;
   const conversaRef = doc(db, "conversas", conversaIdAtual);
-  await updateDoc(conversaRef, {
-    [`digitando_${auth.currentUser.email}`]: status
-  });
+
+  try {
+    await setDoc(conversaRef, {
+      [`digitando_${auth.currentUser.email}`]: status
+    }, { merge: true });
+  } catch (error) {
+    console.error("Erro ao atualizar digitando:", error);
+  }
 }
 
 function resetDigitandoTimeout() {
@@ -191,6 +197,8 @@ async function abrirConversa(conversaId) {
     }
 
     const data = docSnap.data();
+    console.log("Status digitando recebido:", data); // log para debug
+
     const usuarioAtual = auth.currentUser.email;
 
     const usuarios = conversaId.split('_');
