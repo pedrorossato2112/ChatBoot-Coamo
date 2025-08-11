@@ -35,9 +35,10 @@ header {
 
 
 .Logo {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
+  margin-right: 100px;
 }
 
 header h1 {
