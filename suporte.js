@@ -1,39 +1,79 @@
-const db = firebase.database();
-const messagesRef = db.ref("mensagens");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-const sender = prompt("Quem está usando este chat? Digite 'suporte' ou 'cliente':")?.toLowerCase() || "cliente";
+const firebaseConfig = {
+  apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
+  authDomain: "chatboot--coamo.firebaseapp.com",
+  projectId: "chatboot--coamo",
+  storageBucket: "chatboot--coamo.appspot.com",
+  messagingSenderId: "328474991416",
+  appId: "1:328474991416:web:cd61d9ac5377b6a4ab3fcd",
+  measurementId: "G-4QH32PWFM4"
+};
 
-const input = document.getElementById("input-msg");
-const sendBtn = document.getElementById("btn-send");
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const loginDiv = document.getElementById("loginDiv");
+const chatDiv = document.getElementById("chatDiv");
+const userEmailSpan = document.getElementById("userEmail");
 const chatBox = document.getElementById("chat-box");
 
-function addMessage(text, userType) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  div.classList.add("message");
-  if (userType === "suporte") {
-    div.classList.add("suporte");
-  } else {
-    div.classList.add("cliente");
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } else {
+      alert(error.message);
+    }
   }
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-sendBtn.addEventListener("click", () => {
-  const text = input.value.trim();
-  if (!text) return;
-
-  messagesRef.push({
-    sender: sender,
-    text: text,
-    timestamp: Date.now()
-  });
-
-  input.value = "";
 });
 
-messagesRef.on("child_added", snapshot => {
-  const msg = snapshot.val();
-  addMessage(msg.text, msg.sender);
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  signOut(auth);
+});
+
+document.getElementById("btn-send").addEventListener("click", async () => {
+  const msg = document.getElementById("input-msg").value;
+  if (msg.trim() === "") return;
+  await addDoc(collection(db, "mensagens"), {
+    texto: msg,
+    usuario: auth.currentUser.email,
+    timestamp: serverTimestamp()
+  });
+  document.getElementById("input-msg").value = "";
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginDiv.style.display = "none";
+    chatDiv.style.display = "block";
+    userEmailSpan.textContent = user.email;
+
+    const q = query(collection(db, "mensagens"), orderBy("timestamp"));
+    onSnapshot(q, (snapshot) => {
+      chatBox.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const msgEl = document.createElement("p");
+        msgEl.classList.add("msg");
+        msgEl.style.background = data.usuario === user.email ? "#e1ffc7" : "#c7dfff";
+        msgEl.style.padding = "5px";
+        msgEl.style.borderRadius = "5px";
+        msgEl.style.marginBottom = "5px";
+        msgEl.textContent = `${data.usuario}: ${data.texto}`;
+        chatBox.appendChild(msgEl);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  } else {
+    loginDiv.style.display = "block";
+    chatDiv.style.display = "none";
+  }
 });
