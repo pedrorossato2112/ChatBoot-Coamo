@@ -32,7 +32,7 @@ h1 {
   padding: 12px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #2E75B6; 
+  background-color: #008000; 
   color: white;
   border: none;
   border-radius: 5px;
@@ -132,3 +132,4 @@ h1 {
   color: #2E75B6; 
   min-height: 20px;
 }
+
