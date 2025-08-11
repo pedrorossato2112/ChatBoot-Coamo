@@ -27,6 +27,9 @@ const startChatBtn = document.getElementById("startChatBtn");
 const inputMsg = document.getElementById("input-msg");
 const btnSend = document.getElementById("btn-send");
 
+// NOVO: select para contatos salvos (lembre de adicionar no HTML: <select id="contatosSalvos"></select>)
+const contatosSalvosSelect = document.getElementById("contatosSalvos");
+
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 let unsubscribeTyping = null;
@@ -55,6 +58,50 @@ function resetDigitandoTimeout() {
     atualizarDigitando(false);
   }, 1500);
 }
+
+// --- FUNÇÕES NOVAS PARA CONTATOS SALVOS ---
+
+// Carrega contatos do localStorage e atualiza o select
+function carregarContatos() {
+  const contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
+  if (contatos.length > 0) {
+    contatosSalvosSelect.style.display = "block";
+    contatosSalvosSelect.innerHTML = '<option value="">Escolha um contato</option>';
+    contatos.forEach(email => {
+      const option = document.createElement("option");
+      option.value = email;
+      option.textContent = email;
+      contatosSalvosSelect.appendChild(option);
+    });
+  } else {
+    contatosSalvosSelect.style.display = "none";
+    contatosSalvosSelect.innerHTML = "";
+  }
+}
+
+// Quando seleciona um contato salvo, preenche input
+contatosSalvosSelect.addEventListener("change", () => {
+  const selecionado = contatosSalvosSelect.value;
+  if (selecionado) {
+    friendEmailInput.value = selecionado;
+  } else {
+    friendEmailInput.value = "";
+  }
+});
+
+// Salva contato novo no localStorage sem duplicar
+function salvarContato(email) {
+  if (!email) return;
+  let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
+  email = email.toLowerCase();
+  if (!contatos.includes(email)) {
+    contatos.push(email);
+    localStorage.setItem("contatosChat", JSON.stringify(contatos));
+    carregarContatos();
+  }
+}
+
+// --- FIM DAS FUNÇÕES NOVAS ---
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value;
@@ -102,6 +149,8 @@ startChatBtn.addEventListener("click", () => {
   abrirConversa(conversaIdAtual);
   btnSend.disabled = false;
   inputMsg.disabled = false;
+
+  salvarContato(amigo);  // Salva contato novo
 });
 
 btnSend.addEventListener("click", async () => {
@@ -138,6 +187,7 @@ onAuthStateChanged(auth, (user) => {
     userEmailSpan.textContent = user.email;
     btnSend.disabled = true;
     inputMsg.disabled = true;
+    carregarContatos(); // Carrega contatos ao logar
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
@@ -147,6 +197,8 @@ onAuthStateChanged(auth, (user) => {
     chatBox.innerHTML = "";
     friendEmailInput.value = "";
     typingIndicator.textContent = "";
+    contatosSalvosSelect.style.display = "none";
+    contatosSalvosSelect.innerHTML = "";
   }
 });
 
@@ -163,7 +215,6 @@ async function abrirConversa(conversaId) {
   unsubscribeMensagens = onSnapshot(q, async (snapshot) => {
     chatBox.innerHTML = "";
 
-    // Use for...of para lidar com async await dentro do loop
     for (const docSnap of snapshot.docs) {
       const data = docSnap.data();
 
