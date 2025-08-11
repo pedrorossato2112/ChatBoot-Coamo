@@ -1,15 +1,21 @@
 # ChatBoot-coamo
-Chat boot para atender trabalhadores e cooperados,
+Assistente virtual para atender trabalhadores e cooperados Coamo,
 
-O intuito deste site é para que os cooperados e trabalhadores da COAMO tenham acesso mais facil e pratico ao Suporte de sua empresa.
+O objetivo desse site é proporcionar acesso fácil e prático ao Supote do APPLOG à funcionários e cooperados Coamo.
 
 # COMO FUNCIONA?
 
-1- Ao acessar o link do site sera redirecionado a Page principal do site que é o chatboot.
+1. Ao acessar o link do site você será redirecionado à página principal do site que é o chatboot.
 
-2- Para iniciar uma conversa com o chat diga oi ou o comprimento que quizer como por exemplo: ( Oiee, ola, boa tarde, Bom dia, etc).
+2. Para iniciar uma conversa com o Chat Applog basta cumprimentá-lo e precionar o botão 'Enviar'. Exemplo: Oi, Olá, Bom dia, Boa tarde, dentre outros).
 
-3- Em seguida o chat ira te responder e liberar algumas opções de suporte que no caso 4: (Recebimento, Expedição, Trasnporte e Outros).
+3. O usuário será direcionado a um sala de bate-papo com o Chat APPLOG.
 
-4- Após escolher a opção desejada o chat continuara com o suporte da devida exigencia e ira transferir para o suporte local caso precise.
+4. O Chat APPLOG liberará algumas opções de suporte: recebimento, expedição, trasnporte e outros.
+
+5. Após escolher a opção desejada a solicitação será recebida e processada.
+
+6. O Chat APPLOG retornará com as atualizções.
+   
+7. Caso o chamado não tenha sido solucionado e/ou prefira entrar em contato com a equipe responsável utilize o botão 'Chamar' que um dos nossos técnicos entrará em contato prontamente para melhor atendê-lo.
 
