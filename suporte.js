@@ -27,11 +27,18 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    if (error.code === "auth/user-not-found") {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } else {
-      alert(error.message);
-    }
+    alert("Erro no login: " + error.message);
+  }
+});
+
+document.getElementById("signupBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Cadastro realizado com sucesso! Você já está logado.");
+  } catch (error) {
+    alert("Erro no cadastro: " + error.message);
   }
 });
 

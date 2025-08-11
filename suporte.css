@@ -1,61 +1,85 @@
 body {
   font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 10px;
-  background: #f9f9f9;
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 0 15px;
 }
+
 h1 {
   text-align: center;
-  color: #4A90E2;
+  margin-bottom: 30px;
 }
+
+#loginDiv input {
+  display: block;
+  width: 100%;
+  padding: 12px 10px;
+  margin: 10px 0;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.buttons button {
+  width: 48%;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #7670B3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.buttons button:hover {
+  background-color: #5a5587;
+}
+
+#chatDiv {
+  margin-top: 20px;
+}
+
 #chat-box {
   border: 1px solid #ccc;
-  height: 400px;
+  height: 300px;
   overflow-y: auto;
-  background: white;
   padding: 10px;
+  background-color: #f9f9f9;
   margin-bottom: 10px;
-  border-radius: 6px;
+  border-radius: 5px;
 }
-.message {
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  max-width: 70%;
-  clear: both;
-}
-.cliente {
-  background-color: #d1e7dd;
-  float: right;
-  text-align: right;
-}
-.suporte {
-  background-color: #e2e3e5;
-  float: left;
-  text-align: left;
-}
+
 #input-container {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
+
 #input-msg {
   flex-grow: 1;
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
+  padding: 10px;
   font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
+
 #btn-send {
-  background-color: #4A90E2;
-  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #7670B3;
   color: white;
-  padding: 10px 16px;
-  border-radius: 20px;
-  font-weight: bold;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 #btn-send:hover {
-  background-color: #357ABD;
+  background-color: #5a5587;
 }

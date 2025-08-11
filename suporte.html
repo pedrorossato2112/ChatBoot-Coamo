@@ -10,18 +10,18 @@
 
   <h1>Chat Suporte APPLOG</h1>
 
-  <!-- Tela de login -->
   <div id="loginDiv">
-    <input type="email" id="email" placeholder="Seu email"><br><br>
-    <input type="password" id="password" placeholder="Senha"><br><br>
-    <button id="loginBtn">Entrar / Cadastrar</button>
+    <input type="email" id="email" placeholder="Seu email" />
+    <input type="password" id="password" placeholder="Senha" />
+    <div class="buttons">
+      <button id="loginBtn">Login</button>
+      <button id="signupBtn">Cadastrar</button>
+    </div>
   </div>
 
-  <!-- Tela de chat -->
   <div id="chatDiv" style="display:none;">
     <p>Logado como: <span id="userEmail"></span> <button id="logoutBtn">Sair</button></p>
-    <div id="chat-box" style="border:1px solid #ccc;height:300px;overflow-y:auto;padding:10px;"></div>
-
+    <div id="chat-box"></div>
     <div id="input-container">
       <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autofocus />
       <button id="btn-send">Enviar</button>
