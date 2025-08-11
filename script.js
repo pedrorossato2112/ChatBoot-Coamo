@@ -89,7 +89,7 @@ function etapaInicial(topico) {
 function etapaFinal(opcao) {
   addMessage("Você", `Opção escolhida: ${opcao}`, "user");
   setTimeout(() => {
-    addMessage("Assistente", `Você escolheu "${opcao}". Em breve entraremos em contato ou forneceremos mais informações.`, "bot");
+    addMessage("Assistente", `Você escolheu "${opcao}". Em breve entraremos em contato ou forneceremos mais informações.`, "bot","Sua solicitação foi registrada. Retornaremos o mais rápido possível.");
   }, 500);
 }
 
@@ -150,5 +150,6 @@ function etapaFinal(opcao) {
     }
   }, 500);
 }
+
 
 
