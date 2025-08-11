@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -20,15 +20,35 @@ const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const userEmailSpan = document.getElementById("userEmail");
 const chatBox = document.getElementById("chat-box");
+const typingIndicator = document.getElementById("typingIndicator");
 
 const friendEmailInput = document.getElementById("friendEmail");
 const startChatBtn = document.getElementById("startChatBtn");
+const inputMsg = document.getElementById("input-msg");
+const btnSend = document.getElementById("btn-send");
 
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
+let unsubscribeTyping = null;
+let digitandoTimeout = null;
 
 function gerarIdConversa(usuario1, usuario2) {
   return [usuario1, usuario2].sort().join('_');
+}
+
+async function atualizarDigitando(status) {
+  if (!conversaIdAtual || !auth.currentUser) return;
+  const conversaRef = doc(db, "conversas", conversaIdAtual);
+  await updateDoc(conversaRef, {
+    [`digitando_${auth.currentUser.email}`]: status
+  });
+}
+
+function resetDigitandoTimeout() {
+  if (digitandoTimeout) clearTimeout(digitandoTimeout);
+  digitandoTimeout = setTimeout(() => {
+    atualizarDigitando(false);
+  }, 1500);
 }
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
@@ -52,14 +72,14 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
   }
 });
 
-document.getElementById("logoutBtn").addEventListener("click", () => {
+document.getElementById("logoutBtn").addEventListener("click", async () => {
   signOut(auth);
-  if (unsubscribeMensagens) {
-    unsubscribeMensagens();
-  }
+  if (unsubscribeMensagens) unsubscribeMensagens();
+  if (unsubscribeTyping) unsubscribeTyping();
   conversaIdAtual = null;
   chatBox.innerHTML = "";
   friendEmailInput.value = "";
+  typingIndicator.textContent = "";
 });
 
 startChatBtn.addEventListener("click", () => {
@@ -75,64 +95,111 @@ startChatBtn.addEventListener("click", () => {
   abrirConversa(conversaIdAtual);
 });
 
-document.getElementById("btn-send").addEventListener("click", async () => {
+btnSend.addEventListener("click", async () => {
   if (!conversaIdAtual) {
     alert("Abra uma conversa antes de enviar mensagens.");
     return;
   }
 
-  const msg = document.getElementById("input-msg").value.trim();
+  const msg = inputMsg.value.trim();
   if (msg === "") return;
 
   const mensagensRef = collection(db, "conversas", conversaIdAtual, "mensagens");
   await addDoc(mensagensRef, {
     texto: msg,
     usuario: auth.currentUser.email,
-    timestamp: serverTimestamp()
+    timestamp: serverTimestamp(),
+    lidoPor: [auth.currentUser.email]  // quem enviou já leu
   });
 
-  document.getElementById("input-msg").value = "";
+  inputMsg.value = "";
+  await atualizarDigitando(false);
+});
+
+inputMsg.addEventListener("input", () => {
+  if (!conversaIdAtual) return;
+  atualizarDigitando(true);
+  resetDigitandoTimeout();
 });
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginDiv.style.display = "none";
-    chatDiv.style.display = "block";
+    chatDiv.style.display = "flex";
     userEmailSpan.textContent = user.email;
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
     conversaIdAtual = null;
-    if (unsubscribeMensagens) {
-      unsubscribeMensagens();
-    }
+    if (unsubscribeMensagens) unsubscribeMensagens();
+    if (unsubscribeTyping) unsubscribeTyping();
     chatBox.innerHTML = "";
     friendEmailInput.value = "";
+    typingIndicator.textContent = "";
   }
 });
 
-function abrirConversa(conversaId) {
-  if (unsubscribeMensagens) {
-    unsubscribeMensagens();
-  }
+async function abrirConversa(conversaId) {
+  if (unsubscribeMensagens) unsubscribeMensagens();
+  if (unsubscribeTyping) unsubscribeTyping();
 
   chatBox.innerHTML = "";
+  typingIndicator.textContent = "";
+
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
   unsubscribeMensagens = onSnapshot(q, (snapshot) => {
     chatBox.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const msgEl = document.createElement("p");
+    snapshot.forEach(async (docSnap) => {
+      const data = docSnap.data();
+
+      if (!data.lidoPor || !data.lidoPor.includes(auth.currentUser.email)) {
+        await updateDoc(docSnap.ref, {
+          lidoPor: [...(data.lidoPor || []), auth.currentUser.email]
+        });
+      }
+
+      const msgEl = document.createElement("div");
       msgEl.classList.add("msg");
-      msgEl.style.background = data.usuario === auth.currentUser.email ? "#e1ffc7" : "#c7dfff";
-      msgEl.style.padding = "5px";
-      msgEl.style.borderRadius = "5px";
-      msgEl.style.marginBottom = "5px";
-      msgEl.textContent = `${data.usuario}: ${data.texto}`;
+      msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
+
+      msgEl.textContent = data.texto;
+
+      if (data.usuario === auth.currentUser.email) {
+        const outros = data.lidoPor.filter(email => email !== auth.currentUser.email);
+        const statusEl = document.createElement("div");
+        statusEl.classList.add("status");
+        statusEl.textContent = outros.length > 0 ? "✓✓ Visto" : "✓ Enviado";
+        msgEl.appendChild(statusEl);
+      }
+
       chatBox.appendChild(msgEl);
     });
     chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  const conversaDoc = doc(db, "conversas", conversaId);
+
+  unsubscribeTyping = onSnapshot(conversaDoc, (docSnap) => {
+    if (!docSnap.exists()) {
+      setDoc(conversaDoc, {
+        [`digitando_${auth.currentUser.email}`]: false
+      });
+      typingIndicator.textContent = "";
+      return;
+    }
+
+    const data = docSnap.data();
+    const usuarioAtual = auth.currentUser.email;
+
+    const usuarios = conversaId.split('_');
+    const amigoEmail = usuarios.find(email => email !== usuarioAtual);
+
+    if (data[`digitando_${amigoEmail}`]) {
+      typingIndicator.textContent = `${amigoEmail} está digitando...`;
+    } else {
+      typingIndicator.textContent = "";
+    }
   });
 }

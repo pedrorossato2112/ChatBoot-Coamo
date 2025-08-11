@@ -1,13 +1,15 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   max-width: 500px;
   margin: 30px auto;
   padding: 0 15px;
+  background: #ece5dd;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 30px;
+  color: #075e54;
 }
 
 #loginDiv input {
@@ -30,7 +32,7 @@ h1 {
   padding: 12px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #2E75B6;
+  background-color: #25d366;
   color: white;
   border: none;
   border-radius: 5px;
@@ -38,48 +40,93 @@ h1 {
 }
 
 .buttons button:hover {
-  background-color: #2E75B6;
+  background-color: #128c32;
 }
 
 #chatDiv {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 #chat-box {
-  border: 1px solid #ccc;
-  height: 300px;
-  overflow-y: auto;
+  flex-grow: 1;
   padding: 10px;
-  background-color: #f9f9f9;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  height: 350px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+}
+
+.msg {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-size: 16px;
+  position: relative;
+  word-wrap: break-word;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.1);
+}
+
+.msg.own {
+  background-color: #dcf8c6;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+.msg.friend {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
+
+.msg .status {
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+  text-align: right;
 }
 
 #input-container {
   display: flex;
   gap: 10px;
+  margin-top: 10px;
 }
 
 #input-msg {
   flex-grow: 1;
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
-  border-radius: 5px;
+  border-radius: 25px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+  outline: none;
 }
 
 #btn-send {
   padding: 12px 20px;
   font-size: 16px;
-  background-color: #2E75B6;
+  background-color: #25d366;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 25px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 #btn-send:hover {
-  background-color: #2E75B6;
+  background-color: #128c32;
+}
+
+#typingIndicator {
+  height: 20px;
+  margin-top: 5px;
+  font-style: italic;
+  color: #666;
+  min-height: 20px;
 }
