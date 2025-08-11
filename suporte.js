@@ -27,7 +27,6 @@ const startChatBtn = document.getElementById("startChatBtn");
 const inputMsg = document.getElementById("input-msg");
 const btnSend = document.getElementById("btn-send");
 
-// NOVO: select para contatos salvos (lembre de adicionar no HTML: <select id="contatosSalvos"></select>)
 const contatosSalvosSelect = document.getElementById("contatosSalvos");
 
 let conversaIdAtual = null;
@@ -59,9 +58,6 @@ function resetDigitandoTimeout() {
   }, 1500);
 }
 
-// --- FUNÇÕES NOVAS PARA CONTATOS SALVOS ---
-
-// Carrega contatos do localStorage e atualiza o select
 function carregarContatos() {
   const contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
   if (contatos.length > 0) {
@@ -79,7 +75,6 @@ function carregarContatos() {
   }
 }
 
-// Quando seleciona um contato salvo, preenche input
 contatosSalvosSelect.addEventListener("change", () => {
   const selecionado = contatosSalvosSelect.value;
   if (selecionado) {
@@ -89,7 +84,6 @@ contatosSalvosSelect.addEventListener("change", () => {
   }
 });
 
-// Salva contato novo no localStorage sem duplicar
 function salvarContato(email) {
   if (!email) return;
   let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
@@ -100,8 +94,6 @@ function salvarContato(email) {
     carregarContatos();
   }
 }
-
-// --- FIM DAS FUNÇÕES NOVAS ---
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value;
@@ -150,7 +142,7 @@ startChatBtn.addEventListener("click", () => {
   btnSend.disabled = false;
   inputMsg.disabled = false;
 
-  salvarContato(amigo);  // Salva contato novo
+  salvarContato(amigo);  
 });
 
 btnSend.addEventListener("click", async () => {
@@ -187,7 +179,7 @@ onAuthStateChanged(auth, (user) => {
     userEmailSpan.textContent = user.email;
     btnSend.disabled = true;
     inputMsg.disabled = true;
-    carregarContatos(); // Carrega contatos ao logar
+    carregarContatos(); 
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
