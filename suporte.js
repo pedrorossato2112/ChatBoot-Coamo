@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -36,7 +36,6 @@ function gerarIdConversa(usuario1, usuario2) {
   return [usuario1, usuario2].sort().join('_');
 }
 
-// Atualizado para setDoc com merge: true para criar/atualizar o doc corretamente
 async function atualizarDigitando(status) {
   if (!conversaIdAtual || !auth.currentUser) return;
   const conversaRef = doc(db, "conversas", conversaIdAtual);
@@ -79,13 +78,15 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
-  signOut(auth);
+  await signOut(auth);
   if (unsubscribeMensagens) unsubscribeMensagens();
   if (unsubscribeTyping) unsubscribeTyping();
   conversaIdAtual = null;
   chatBox.innerHTML = "";
   friendEmailInput.value = "";
   typingIndicator.textContent = "";
+  btnSend.disabled = true;
+  inputMsg.disabled = true;
 });
 
 startChatBtn.addEventListener("click", () => {
@@ -99,6 +100,8 @@ startChatBtn.addEventListener("click", () => {
 
   conversaIdAtual = gerarIdConversa(usuario, amigo);
   abrirConversa(conversaIdAtual);
+  btnSend.disabled = false;
+  inputMsg.disabled = false;
 });
 
 btnSend.addEventListener("click", async () => {
@@ -115,7 +118,7 @@ btnSend.addEventListener("click", async () => {
     texto: msg,
     usuario: auth.currentUser.email,
     timestamp: serverTimestamp(),
-    lidoPor: [auth.currentUser.email]  // quem enviou já leu
+    lidoPor: [auth.currentUser.email]
   });
 
   inputMsg.value = "";
@@ -133,6 +136,8 @@ onAuthStateChanged(auth, (user) => {
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
     userEmailSpan.textContent = user.email;
+    btnSend.disabled = true;
+    inputMsg.disabled = true;
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
@@ -155,9 +160,11 @@ async function abrirConversa(conversaId) {
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, (snapshot) => {
+  unsubscribeMensagens = onSnapshot(q, async (snapshot) => {
     chatBox.innerHTML = "";
-    snapshot.forEach(async (docSnap) => {
+
+    // Use for...of para lidar com async await dentro do loop
+    for (const docSnap of snapshot.docs) {
       const data = docSnap.data();
 
       if (!data.lidoPor || !data.lidoPor.includes(auth.currentUser.email)) {
@@ -181,7 +188,7 @@ async function abrirConversa(conversaId) {
       }
 
       chatBox.appendChild(msgEl);
-    });
+    }
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
@@ -191,13 +198,13 @@ async function abrirConversa(conversaId) {
     if (!docSnap.exists()) {
       setDoc(conversaDoc, {
         [`digitando_${auth.currentUser.email}`]: false
-      });
+      }, { merge: true });
       typingIndicator.textContent = "";
       return;
     }
 
     const data = docSnap.data();
-    console.log("Status digitando recebido:", data); // log para debug
+    console.log("Status digitando recebido:", data);
 
     const usuarioAtual = auth.currentUser.email;
 
