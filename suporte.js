@@ -21,6 +21,16 @@ const chatDiv = document.getElementById("chatDiv");
 const userEmailSpan = document.getElementById("userEmail");
 const chatBox = document.getElementById("chat-box");
 
+const friendEmailInput = document.getElementById("friendEmail");
+const startChatBtn = document.getElementById("startChatBtn");
+
+let conversaIdAtual = null;
+let unsubscribeMensagens = null;
+
+function gerarIdConversa(usuario1, usuario2) {
+  return [usuario1, usuario2].sort().join('_');
+}
+
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -44,16 +54,43 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
   signOut(auth);
+  if (unsubscribeMensagens) {
+    unsubscribeMensagens();
+  }
+  conversaIdAtual = null;
+  chatBox.innerHTML = "";
+  friendEmailInput.value = "";
+});
+
+startChatBtn.addEventListener("click", () => {
+  const amigo = friendEmailInput.value.trim().toLowerCase();
+  const usuario = auth.currentUser.email.toLowerCase();
+
+  if (amigo === "" || amigo === usuario) {
+    alert("Digite um email válido e diferente do seu.");
+    return;
+  }
+
+  conversaIdAtual = gerarIdConversa(usuario, amigo);
+  abrirConversa(conversaIdAtual);
 });
 
 document.getElementById("btn-send").addEventListener("click", async () => {
-  const msg = document.getElementById("input-msg").value;
-  if (msg.trim() === "") return;
-  await addDoc(collection(db, "mensagens"), {
+  if (!conversaIdAtual) {
+    alert("Abra uma conversa antes de enviar mensagens.");
+    return;
+  }
+
+  const msg = document.getElementById("input-msg").value.trim();
+  if (msg === "") return;
+
+  const mensagensRef = collection(db, "conversas", conversaIdAtual, "mensagens");
+  await addDoc(mensagensRef, {
     texto: msg,
     usuario: auth.currentUser.email,
     timestamp: serverTimestamp()
   });
+
   document.getElementById("input-msg").value = "";
 });
 
@@ -62,25 +99,40 @@ onAuthStateChanged(auth, (user) => {
     loginDiv.style.display = "none";
     chatDiv.style.display = "block";
     userEmailSpan.textContent = user.email;
-
-    const q = query(collection(db, "mensagens"), orderBy("timestamp"));
-    onSnapshot(q, (snapshot) => {
-      chatBox.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const msgEl = document.createElement("p");
-        msgEl.classList.add("msg");
-        msgEl.style.background = data.usuario === user.email ? "#e1ffc7" : "#c7dfff";
-        msgEl.style.padding = "5px";
-        msgEl.style.borderRadius = "5px";
-        msgEl.style.marginBottom = "5px";
-        msgEl.textContent = `${data.usuario}: ${data.texto}`;
-        chatBox.appendChild(msgEl);
-      });
-      chatBox.scrollTop = chatBox.scrollHeight;
-    });
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
+    conversaIdAtual = null;
+    if (unsubscribeMensagens) {
+      unsubscribeMensagens();
+    }
+    chatBox.innerHTML = "";
+    friendEmailInput.value = "";
   }
 });
+
+function abrirConversa(conversaId) {
+  if (unsubscribeMensagens) {
+    unsubscribeMensagens();
+  }
+
+  chatBox.innerHTML = "";
+  const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
+  const q = query(mensagensRef, orderBy("timestamp"));
+
+  unsubscribeMensagens = onSnapshot(q, (snapshot) => {
+    chatBox.innerHTML = "";
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const msgEl = document.createElement("p");
+      msgEl.classList.add("msg");
+      msgEl.style.background = data.usuario === auth.currentUser.email ? "#e1ffc7" : "#c7dfff";
+      msgEl.style.padding = "5px";
+      msgEl.style.borderRadius = "5px";
+      msgEl.style.marginBottom = "5px";
+      msgEl.textContent = `${data.usuario}: ${data.texto}`;
+      chatBox.appendChild(msgEl);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+}
