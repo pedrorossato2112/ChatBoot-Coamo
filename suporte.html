@@ -20,25 +20,28 @@
   </div>
 
   <div id="chatDiv" style="display:none;">
+    <p>Logado como: <span id="userEmail"></span> <button id="logoutBtn">Sair</button></p>
+    
+    <div id="friendSelect" style="margin-bottom: 10px;">
+      <select id="contatosSalvos" style="width: 100%; margin-bottom: 10px; display:none;"></select>
+      <input type="email" id="friendEmail" placeholder="Digite o email da pessoa para conversar" />
+      <button id="startChatBtn">Abrir conversa</button>
+    </div>
 
-  <p>Logado como: <span id="userEmail"></span> <button id="logoutBtn">Sair</button></p>
+    <div id="chat-box"></div>
 
-  <div id="friendSelect" style="margin-bottom: 10px;">
-    <select id="contatosSalvos" style="width: 100%; margin-bottom: 10px; display:none;"></select>
-    <input type="email" id="friendEmail" placeholder="Digite o email da pessoa para conversar" />
-    <button id="startChatBtn">Abrir conversa</button>
+    <div id="typingIndicator" style="height: 20px; margin-top: 5px; font-style: italic; color: #666;"></div>
+    <div id="replyPreview" style="display:none; border-left: 3px solid #7670B3; padding-left: 10px; margin-bottom: 5px; background: #f0f0f0; cursor: pointer;">
+      <span id="replyText"></span>
+      <button id="cancelReplyBtn" style="float:right; background:none; border:none; font-weight:bold; cursor:pointer;">X</button>
+    </div>
+
+    <div id="input-container">
+      <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off" />
+      <button id="btn-send">Enviar</button>
+    </div>
+
   </div>
-
-  <div id="chat-box"></div>
-
-  <div id="typingIndicator" style="height: 20px; margin-top: 5px; font-style: italic; color: #666;"></div>
-
-  <div id="input-container">
-    <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off" />
-    <button id="btn-send">Enviar</button>
-  </div>
-
-</div>
 
   <script type="module" src="suporte.js"></script>
 
