@@ -95,13 +95,29 @@ function salvarContato(email) {
   }
 }
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
+async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     alert("Erro no login: " + error.message);
+  }
+}
+
+document.getElementById("loginBtn").addEventListener("click", login);
+
+document.getElementById("email").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    login();
+  }
+});
+
+document.getElementById("password").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    login();
   }
 });
 
@@ -180,27 +196,6 @@ inputMsg.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault(); 
     btnSend.click(); 
-  }
-});
-
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-
-function tentarLogin() {
-  document.getElementById("loginBtn").click();
-}
-
-emailInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    tentarLogin();
-  }
-});
-
-passwordInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    tentarLogin();
   }
 });
 
