@@ -44,7 +44,7 @@ async function atualizarDigitando(status) {
 
   try {
     await setDoc(conversaRef, {
-      [digitando_${auth.currentUser.email}]: status
+      [`digitando_${auth.currentUser.email}`]: status
     }, { merge: true });
   } catch (error) {
     console.error("Erro ao atualizar digitando:", error);
@@ -137,12 +137,16 @@ startChatBtn.addEventListener("click", () => {
     return;
   }
 
-  conversaIdAtual = gerarIdConversa(usuario, amigo);
+  const novaConversaId = gerarIdConversa(usuario, amigo);
+
+  if (conversaIdAtual === novaConversaId) return; 
+
+  conversaIdAtual = novaConversaId;
   abrirConversa(conversaIdAtual);
   btnSend.disabled = false;
   inputMsg.disabled = false;
 
-  salvarContato(amigo);  
+  salvarContato(amigo);
 });
 
 btnSend.addEventListener("click", async () => {
@@ -172,6 +176,34 @@ inputMsg.addEventListener("input", () => {
   resetDigitandoTimeout();
 });
 
+inputMsg.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault(); 
+    btnSend.click(); 
+  }
+});
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+function tentarLogin() {
+  document.getElementById("loginBtn").click();
+}
+
+emailInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    tentarLogin();
+  }
+});
+
+passwordInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    tentarLogin();
+  }
+});
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginDiv.style.display = "none";
@@ -179,7 +211,7 @@ onAuthStateChanged(auth, (user) => {
     userEmailSpan.textContent = user.email;
     btnSend.disabled = true;
     inputMsg.disabled = true;
-    carregarContatos(); 
+    carregarContatos();
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
@@ -195,8 +227,14 @@ onAuthStateChanged(auth, (user) => {
 });
 
 async function abrirConversa(conversaId) {
-  if (unsubscribeMensagens) unsubscribeMensagens();
-  if (unsubscribeTyping) unsubscribeTyping();
+  if (unsubscribeMensagens) {
+    console.log("Desinscrevendo mensagens anteriores");
+    unsubscribeMensagens();
+  }
+  if (unsubscribeTyping) {
+    console.log("Desinscrevendo typing anteriores");
+    unsubscribeTyping();
+  }
 
   chatBox.innerHTML = "";
   typingIndicator.textContent = "";
@@ -204,16 +242,16 @@ async function abrirConversa(conversaId) {
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, async (snapshot) => {
+  unsubscribeMensagens = onSnapshot(q, (snapshot) => {
     chatBox.innerHTML = "";
 
-    for (const docSnap of snapshot.docs) {
+    snapshot.docs.forEach((docSnap) => {
       const data = docSnap.data();
 
       if (!data.lidoPor || !data.lidoPor.includes(auth.currentUser.email)) {
-        await updateDoc(docSnap.ref, {
+        updateDoc(docSnap.ref, {
           lidoPor: [...(data.lidoPor || []), auth.currentUser.email]
-        });
+        }).catch(console.error);
       }
 
       const msgEl = document.createElement("div");
@@ -231,7 +269,8 @@ async function abrirConversa(conversaId) {
       }
 
       chatBox.appendChild(msgEl);
-    }
+    });
+
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
@@ -240,22 +279,20 @@ async function abrirConversa(conversaId) {
   unsubscribeTyping = onSnapshot(conversaDoc, (docSnap) => {
     if (!docSnap.exists()) {
       setDoc(conversaDoc, {
-        [digitando_${auth.currentUser.email}]: false
+        [`digitando_${auth.currentUser.email}`]: false
       }, { merge: true });
       typingIndicator.textContent = "";
       return;
     }
 
     const data = docSnap.data();
-    console.log("Status digitando recebido:", data);
-
     const usuarioAtual = auth.currentUser.email;
 
     const usuarios = conversaId.split('_');
     const amigoEmail = usuarios.find(email => email !== usuarioAtual);
 
-    if (data[digitando_${amigoEmail}]) {
-      typingIndicator.textContent = ${amigoEmail} está digitando...;
+    if (data[`digitando_${amigoEmail}`]) {
+      typingIndicator.textContent = `${amigoEmail} está digitando...`;
     } else {
       typingIndicator.textContent = "";
     }
