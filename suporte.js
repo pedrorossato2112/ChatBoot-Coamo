@@ -176,6 +176,13 @@ inputMsg.addEventListener("input", () => {
   resetDigitandoTimeout();
 });
 
+inputMsg.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault(); 
+    btnSend.click(); 
+  }
+});
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginDiv.style.display = "none";
