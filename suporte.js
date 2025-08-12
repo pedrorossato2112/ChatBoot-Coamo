@@ -18,20 +18,16 @@ const auth = getAuth(app);
 
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
-const userApelidoSpan = document.getElementById("userApelido");
 const userEmailSpan = document.getElementById("userEmail");
 const chatBox = document.getElementById("chat-box");
 const typingIndicator = document.getElementById("typingIndicator");
 
-const apelidoLoginInput = document.getElementById("apelidoLogin");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-
-const friendApelidoInput = document.getElementById("friendApelido");
-const contatosSalvosSelect = document.getElementById("contatosSalvos");
+const friendEmailInput = document.getElementById("friendEmail");
 const startChatBtn = document.getElementById("startChatBtn");
 const inputMsg = document.getElementById("input-msg");
 const btnSend = document.getElementById("btn-send");
+
+const contatosSalvosSelect = document.getElementById("contatosSalvos");
 
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
@@ -69,8 +65,8 @@ function carregarContatos() {
     contatosSalvosSelect.innerHTML = '<option value="">Escolha um contato</option>';
     contatos.forEach(({email, apelido}) => {
       const option = document.createElement("option");
-      option.value = email; // valor = email para usar para abrir conversa
-      option.textContent = apelido; // texto = apelido
+      option.value = email;
+      option.textContent = apelido;
       contatosSalvosSelect.appendChild(option);
     });
   } else {
@@ -80,18 +76,11 @@ function carregarContatos() {
 }
 
 contatosSalvosSelect.addEventListener("change", () => {
-  const emailSelecionado = contatosSalvosSelect.value;
-  if (emailSelecionado) {
-    // encontrar o apelido para preencher no input friendApelido
-    const contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
-    const contato = contatos.find(c => c.email === emailSelecionado);
-    if (contato) {
-      friendApelidoInput.value = contato.apelido;
-    } else {
-      friendApelidoInput.value = "";
-    }
+  const selecionado = contatosSalvosSelect.value;
+  if (selecionado) {
+    friendEmailInput.value = selecionado;
   } else {
-    friendApelidoInput.value = "";
+    friendEmailInput.value = "";
   }
 });
 
@@ -99,8 +88,6 @@ function salvarContato(email, apelido) {
   if (!email || !apelido) return;
   let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
   email = email.toLowerCase();
-  apelido = apelido.trim();
-
   if (!contatos.some(c => c.email === email)) {
     contatos.push({ email, apelido });
     localStorage.setItem("contatosChat", JSON.stringify(contatos));
@@ -109,18 +96,17 @@ function salvarContato(email, apelido) {
 }
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
-  const apelido = apelidoLoginInput.value.trim();
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const apelido = document.getElementById("apelido").value.trim();
 
   if (!apelido) {
-    alert("Por favor, insira seu apelido.");
+    alert("Por favor, insira seu apelido antes de entrar.");
     return;
   }
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    // salvar apelido localmente para mostrar
     localStorage.setItem("userApelido", apelido);
   } catch (error) {
     alert("Erro no login: " + error.message);
@@ -128,19 +114,19 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("signupBtn").addEventListener("click", async () => {
-  const apelido = apelidoLoginInput.value.trim();
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const apelido = document.getElementById("apelido").value.trim();
 
   if (!apelido) {
-    alert("Por favor, insira seu apelido.");
+    alert("Por favor, insira seu apelido antes de cadastrar.");
     return;
   }
 
   try {
     await createUserWithEmailAndPassword(auth, email, password);
-    alert("Cadastro realizado com sucesso! Você já está logado.");
     localStorage.setItem("userApelido", apelido);
+    alert("Cadastro realizado com sucesso! Você já está logado.");
   } catch (error) {
     alert("Erro no cadastro: " + error.message);
   }
@@ -152,58 +138,46 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   if (unsubscribeTyping) unsubscribeTyping();
   conversaIdAtual = null;
   chatBox.innerHTML = "";
-  friendApelidoInput.value = "";
-  contatosSalvosSelect.style.display = "none";
-  contatosSalvosSelect.innerHTML = "";
+  friendEmailInput.value = "";
   typingIndicator.textContent = "";
   btnSend.disabled = true;
   inputMsg.disabled = true;
-  userApelidoSpan.textContent = "";
-  userEmailSpan.textContent = "";
   localStorage.removeItem("userApelido");
 });
 
-startChatBtn.addEventListener("click", () => {
-  const apelidoAmigo = friendApelidoInput.value.trim();
-  if (!apelidoAmigo) {
-    alert("Digite o apelido do contato para conversar.");
+startChatBtn.addEventListener("click", async () => {
+  const amigoEmail = friendEmailInput.value.trim().toLowerCase();
+  const usuarioEmail = auth.currentUser.email.toLowerCase();
+
+  if (amigoEmail === "" || amigoEmail === usuarioEmail) {
+    alert("Digite um email válido e diferente do seu.");
     return;
   }
 
-  const contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
-  const contato = contatos.find(c => c.apelido.toLowerCase() === apelidoAmigo.toLowerCase());
+  // Verifica se contato tem apelido salvo
+  let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
+  let contatoEncontrado = contatos.find(c => c.email === amigoEmail);
 
-  if (!contato) {
-    // Se não encontrar, pode perguntar o email para salvar novo contato
-    const emailContato = prompt(`Contato não encontrado. Por favor, informe o email do contato '${apelidoAmigo}':`);
-    if (!emailContato) return;
-
-    salvarContato(emailContato, apelidoAmigo);
-
-    abrirConversaComEmail(emailContato);
-  } else {
-    abrirConversaComEmail(contato.email);
-  }
-});
-
-function abrirConversaComEmail(email) {
-  const usuario = auth.currentUser.email.toLowerCase();
-
-  if (email === usuario) {
-    alert("Você não pode abrir conversa consigo mesmo.");
-    return;
+  // Se não tem apelido, pede e salva
+  if (!contatoEncontrado) {
+    const apelidoNovo = prompt("Digite um apelido para esse contato:");
+    if (!apelidoNovo) {
+      alert("Você precisa informar um apelido para iniciar a conversa.");
+      return;
+    }
+    salvarContato(amigoEmail, apelidoNovo);
+    contatoEncontrado = { email: amigoEmail, apelido: apelidoNovo };
   }
 
-  const novaConversaId = gerarIdConversa(usuario, email.toLowerCase());
+  const novaConversaId = gerarIdConversa(usuarioEmail, amigoEmail);
 
   if (conversaIdAtual === novaConversaId) return;
 
   conversaIdAtual = novaConversaId;
   abrirConversa(conversaIdAtual);
-
   btnSend.disabled = false;
   inputMsg.disabled = false;
-}
+});
 
 btnSend.addEventListener("click", async () => {
   if (!conversaIdAtual) {
@@ -239,33 +213,29 @@ inputMsg.addEventListener("keydown", (event) => {
   }
 });
 
-// Login com Enter no email, senha e apelido
-apelidoLoginInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("loginBtn").click();
-  }
-});
-emailInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("loginBtn").click();
-  }
-});
-passwordInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("loginBtn").click();
-  }
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const apelidoInput = document.getElementById("apelido");
+
+function tentarLogin() {
+  document.getElementById("loginBtn").click();
+}
+
+[emailInput, passwordInput, apelidoInput].forEach(input => {
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      tentarLogin();
+    }
+  });
 });
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    userEmailSpan.textContent = user.email;
     const apelido = localStorage.getItem("userApelido") || user.email;
-    userApelidoSpan.textContent = apelido;
+    userEmailSpan.textContent = apelido;
     btnSend.disabled = true;
     inputMsg.disabled = true;
     carregarContatos();
@@ -276,12 +246,10 @@ onAuthStateChanged(auth, (user) => {
     if (unsubscribeMensagens) unsubscribeMensagens();
     if (unsubscribeTyping) unsubscribeTyping();
     chatBox.innerHTML = "";
-    friendApelidoInput.value = "";
+    friendEmailInput.value = "";
+    typingIndicator.textContent = "";
     contatosSalvosSelect.style.display = "none";
     contatosSalvosSelect.innerHTML = "";
-    typingIndicator.textContent = "";
-    userApelidoSpan.textContent = "";
-    userEmailSpan.textContent = "";
   }
 });
 
@@ -302,6 +270,9 @@ async function abrirConversa(conversaId) {
   unsubscribeMensagens = onSnapshot(q, (snapshot) => {
     chatBox.innerHTML = "";
 
+    let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
+    let apelidoUsuario = localStorage.getItem("userApelido") || auth.currentUser.email;
+
     snapshot.docs.forEach((docSnap) => {
       const data = docSnap.data();
 
@@ -315,17 +286,14 @@ async function abrirConversa(conversaId) {
       msgEl.classList.add("msg");
       msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
 
-      // Mostrar apelido do usuário da mensagem, se estiver salvo nos contatos
-      let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
       let remetenteApelido = data.usuario;
       const contatoMsg = contatos.find(c => c.email === data.usuario);
       if (contatoMsg) {
         remetenteApelido = contatoMsg.apelido;
       } else if (data.usuario === auth.currentUser.email) {
-        remetenteApelido = localStorage.getItem("userApelido") || data.usuario;
+        remetenteApelido = apelidoUsuario;
       }
 
-      // Criar o conteúdo da mensagem com apelido + texto
       msgEl.textContent = `${remetenteApelido}: ${data.texto}`;
 
       if (data.usuario === auth.currentUser.email) {
@@ -359,8 +327,15 @@ async function abrirConversa(conversaId) {
     const usuarios = conversaId.split('_');
     const amigoEmail = usuarios.find(email => email !== usuarioAtual);
 
+    let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
+    let apelidoAmigo = amigoEmail;
+    const contatoDigitando = contatos.find(c => c.email === amigoEmail);
+    if (contatoDigitando) {
+      apelidoAmigo = contatoDigitando.apelido;
+    }
+
     if (data[`digitando_${amigoEmail}`]) {
-      typingIndicator.textContent = `${localStorage.getItem("contatosChat")?.find(c => c.email === amigoEmail)?.apelido || amigoEmail} está digitando...`;
+      typingIndicator.textContent = `${apelidoAmigo} está digitando...`;
     } else {
       typingIndicator.textContent = "";
     }
