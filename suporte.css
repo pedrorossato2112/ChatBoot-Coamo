@@ -132,5 +132,40 @@ h1 {
   color: #008000; 
   min-height: 20px;
 }
+#replyPreview {
+  border-left: 4px solid #6c63ff;
+  background: #f0f0ff;
+  padding: 8px 12px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  position: relative;
+  display: none;
+  align-items: center;
+  font-style: italic;
+  color: #555;
+}
+
+#replyPreview #replyText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#replyPreview button#cancelReplyBtn {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+}
+
+#replyPreview button#cancelReplyBtn:hover {
+  color: #6c63ff;
+}
 
 

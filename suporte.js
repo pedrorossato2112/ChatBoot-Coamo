@@ -33,12 +33,18 @@ const replyPreview = document.getElementById("replyPreview");
 const replyText = document.getElementById("replyText");
 const cancelReplyBtn = document.getElementById("cancelReplyBtn");
 
+const nicknameModal = document.getElementById("nicknameModal");
+const nicknameInput = document.getElementById("nicknameInput");
+const saveNicknameBtn = document.getElementById("saveNicknameBtn");
+
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 let unsubscribeTyping = null;
 let digitandoTimeout = null;
 
-let mensagemRespondida = null;
+let respostaMsg = null; 
+
+const apelidosCache = {};
 
 function gerarIdConversa(usuario1, usuario2) {
   return [usuario1, usuario2].sort().join('_');
@@ -101,6 +107,40 @@ function salvarContato(email) {
   }
 }
 
+function carregarApelido() {
+  return localStorage.getItem("apelidoChat");
+}
+
+function salvarApelido(apelido) {
+  localStorage.setItem("apelidoChat", apelido);
+}
+
+function mostrarNicknameModal() {
+  nicknameModal.style.display = "flex";
+}
+
+function esconderNicknameModal() {
+  nicknameModal.style.display = "none";
+}
+
+saveNicknameBtn.addEventListener("click", () => {
+  const apelido = nicknameInput.value.trim();
+  if (apelido.length < 2) {
+    alert("Por favor, digite um apelido com pelo menos 2 caracteres.");
+    return;
+  }
+  salvarApelido(apelido);
+  apelidosCache[auth.currentUser.email] = apelido;
+  userEmailSpan.textContent = apelido;
+  esconderNicknameModal();
+});
+
+function getApelido(email) {
+  if (!email) return "Anônimo";
+  if (apelidosCache[email]) return apelidosCache[email];
+  return email;
+}
+
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -132,7 +172,8 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   typingIndicator.textContent = "";
   btnSend.disabled = true;
   inputMsg.disabled = true;
-  limparResposta();
+  respostaMsg = null;
+  esconderReply();
 });
 
 startChatBtn.addEventListener("click", () => {
@@ -166,26 +207,28 @@ btnSend.addEventListener("click", async () => {
   if (msg === "") return;
 
   const mensagensRef = collection(db, "conversas", conversaIdAtual, "mensagens");
-  const msgObj = {
+
+  let mensagemObj = {
     texto: msg,
     usuario: auth.currentUser.email,
     timestamp: serverTimestamp(),
     lidoPor: [auth.currentUser.email]
   };
 
-  if (mensagemRespondida) {
-    msgObj.respondeA = {
-      id: mensagemRespondida.id,
-      texto: mensagemRespondida.texto,
-      usuario: mensagemRespondida.usuario
+  if (respostaMsg) {
+    mensagemObj.respondeA = {
+      id: respostaMsg.id,
+      texto: respostaMsg.texto,
+      usuario: respostaMsg.usuario
     };
   }
 
-  await addDoc(mensagensRef, msgObj);
+  await addDoc(mensagensRef, mensagemObj);
 
   inputMsg.value = "";
   await atualizarDigitando(false);
-  limparResposta();
+  respostaMsg = null;
+  esconderReply();
 });
 
 inputMsg.addEventListener("input", () => {
@@ -196,8 +239,8 @@ inputMsg.addEventListener("input", () => {
 
 inputMsg.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    event.preventDefault(); 
-    btnSend.click(); 
+    event.preventDefault();
+    btnSend.click();
   }
 });
 
@@ -226,7 +269,18 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    userEmailSpan.textContent = user.email;
+
+    const apelidoSalvo = carregarApelido();
+    if (apelidoSalvo) {
+      apelidosCache[user.email] = apelidoSalvo;
+      userEmailSpan.textContent = apelidoSalvo;
+      esconderNicknameModal();
+    } else {
+      mostrarNicknameModal();
+      nicknameInput.value = "";
+      nicknameInput.focus();
+    }
+
     btnSend.disabled = true;
     inputMsg.disabled = true;
     carregarContatos();
@@ -241,21 +295,12 @@ onAuthStateChanged(auth, (user) => {
     typingIndicator.textContent = "";
     contatosSalvosSelect.style.display = "none";
     contatosSalvosSelect.innerHTML = "";
-    limparResposta();
+    respostaMsg = null;
+    esconderReply();
   }
 });
 
-function limparResposta() {
-  mensagemRespondida = null;
-  replyPreview.style.display = "none";
-  replyText.textContent = "";
-}
-
-cancelReplyBtn.addEventListener("click", () => {
-  limparResposta();
-});
-
-async function abrirConversa(conversaId) {
+function abrirConversa(conversaId) {
   if (unsubscribeMensagens) {
     console.log("Desinscrevendo mensagens anteriores");
     unsubscribeMensagens();
@@ -288,16 +333,23 @@ async function abrirConversa(conversaId) {
       msgEl.classList.add("msg");
       msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
 
+      let textoMsg = "";
+
       if (data.respondeA) {
-        const quote = document.createElement("div");
-        quote.classList.add("quote");
-        quote.textContent = `${data.respondeA.usuario}: ${data.respondeA.texto}`;
-        msgEl.appendChild(quote);
+        textoMsg += `${getApelido(data.respondeA.usuario)}: ${data.respondeA.texto}\n→ `;
       }
 
-      const textoMsg = document.createElement("div");
-      textoMsg.textContent = data.texto;
-      msgEl.appendChild(textoMsg);
+      textoMsg += data.texto;
+
+      msgEl.textContent = textoMsg;
+
+      msgEl.style.cursor = "pointer";
+      msgEl.title = "Clique para responder";
+      msgEl.addEventListener("click", () => {
+        respostaMsg = { id, texto: data.texto, usuario: data.usuario };
+        mostrarReply(respostaMsg);
+        inputMsg.focus();
+      });
 
       if (data.usuario === auth.currentUser.email) {
         const outros = data.lidoPor.filter(email => email !== auth.currentUser.email);
@@ -306,13 +358,6 @@ async function abrirConversa(conversaId) {
         statusEl.textContent = outros.length > 0 ? "✓✓ Visto" : "✓ Enviado";
         msgEl.appendChild(statusEl);
       }
-
-      msgEl.addEventListener("click", () => {
-        mensagemRespondida = { id, texto: data.texto, usuario: data.usuario };
-        replyPreview.style.display = "block";
-        replyText.textContent = `${data.usuario}: ${data.texto.length > 30 ? data.texto.substring(0, 30) + "..." : data.texto}`;
-        inputMsg.focus();
-      });
 
       chatBox.appendChild(msgEl);
     });
@@ -338,9 +383,25 @@ async function abrirConversa(conversaId) {
     const amigoEmail = usuarios.find(email => email !== usuarioAtual);
 
     if (data[`digitando_${amigoEmail}`]) {
-      typingIndicator.textContent = `${amigoEmail} está digitando...`;
+      typingIndicator.textContent = `${getApelido(amigoEmail)} está digitando...`;
     } else {
       typingIndicator.textContent = "";
     }
   });
 }
+
+function mostrarReply(msg) {
+  replyText.textContent = `${getApelido(msg.usuario)}: ${msg.texto.length > 50 ? msg.texto.substring(0, 50) + "..." : msg.texto}`;
+  replyPreview.style.display = "flex";
+}
+
+function esconderReply() {
+  replyPreview.style.display = "none";
+  replyText.textContent = "";
+  respostaMsg = null;
+}
+
+cancelReplyBtn.addEventListener("click", () => {
+  esconderReply();
+});
+
