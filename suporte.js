@@ -183,6 +183,27 @@ inputMsg.addEventListener("keydown", (event) => {
   }
 });
 
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+function tentarLogin() {
+  document.getElementById("loginBtn").click();
+}
+
+emailInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    tentarLogin();
+  }
+});
+
+passwordInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    tentarLogin();
+  }
+});
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginDiv.style.display = "none";
