@@ -137,12 +137,16 @@ startChatBtn.addEventListener("click", () => {
     return;
   }
 
-  conversaIdAtual = gerarIdConversa(usuario, amigo);
+  const novaConversaId = gerarIdConversa(usuario, amigo);
+
+  if (conversaIdAtual === novaConversaId) return; 
+
+  conversaIdAtual = novaConversaId;
   abrirConversa(conversaIdAtual);
   btnSend.disabled = false;
   inputMsg.disabled = false;
 
-  salvarContato(amigo);  
+  salvarContato(amigo);
 });
 
 btnSend.addEventListener("click", async () => {
@@ -179,7 +183,7 @@ onAuthStateChanged(auth, (user) => {
     userEmailSpan.textContent = user.email;
     btnSend.disabled = true;
     inputMsg.disabled = true;
-    carregarContatos(); 
+    carregarContatos();
   } else {
     loginDiv.style.display = "block";
     chatDiv.style.display = "none";
@@ -195,8 +199,14 @@ onAuthStateChanged(auth, (user) => {
 });
 
 async function abrirConversa(conversaId) {
-  if (unsubscribeMensagens) unsubscribeMensagens();
-  if (unsubscribeTyping) unsubscribeTyping();
+  if (unsubscribeMensagens) {
+    console.log("Desinscrevendo mensagens anteriores");
+    unsubscribeMensagens();
+  }
+  if (unsubscribeTyping) {
+    console.log("Desinscrevendo typing anteriores");
+    unsubscribeTyping();
+  }
 
   chatBox.innerHTML = "";
   typingIndicator.textContent = "";
@@ -204,16 +214,16 @@ async function abrirConversa(conversaId) {
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, async (snapshot) => {
+  unsubscribeMensagens = onSnapshot(q, (snapshot) => {
     chatBox.innerHTML = "";
 
-    for (const docSnap of snapshot.docs) {
+    snapshot.docs.forEach((docSnap) => {
       const data = docSnap.data();
 
       if (!data.lidoPor || !data.lidoPor.includes(auth.currentUser.email)) {
-        await updateDoc(docSnap.ref, {
+        updateDoc(docSnap.ref, {
           lidoPor: [...(data.lidoPor || []), auth.currentUser.email]
-        });
+        }).catch(console.error);
       }
 
       const msgEl = document.createElement("div");
@@ -231,7 +241,8 @@ async function abrirConversa(conversaId) {
       }
 
       chatBox.appendChild(msgEl);
-    }
+    });
+
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
@@ -247,8 +258,6 @@ async function abrirConversa(conversaId) {
     }
 
     const data = docSnap.data();
-    console.log("Status digitando recebido:", data);
-
     const usuarioAtual = auth.currentUser.email;
 
     const usuarios = conversaId.split('_');
