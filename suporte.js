@@ -65,6 +65,12 @@ function listarChamadosAtendente(emailAtendente) {
 
   onSnapshot(q, snapshot => {
     chamadosList.innerHTML = "";
+    if (snapshot.empty) {
+      const li = document.createElement("li");
+      li.textContent = "Nenhum chamado disponível";
+      chamadosList.appendChild(li);
+      return;
+    }
     snapshot.docs.forEach(docSnap => {
       const li = document.createElement("li");
       li.textContent = docSnap.id; // ID do cooperado
@@ -93,7 +99,7 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
     await setDoc(doc(db, "users", email), { tipo: "cooperado" }, { merge: true });
 
     // Criar chamado automático para cooperado
-    const atendentes = ["atendente1@email.com", "atendente2@email.com", "atendente3@email.com"];
+    const atendentes = ["rossato.pedrinho@gmail.com", "Amandasa0210@gmail.com", "gustazin.2501.albuquerque@gmail.com"];
     await setDoc(doc(db, "chamados", email), {
       status: "aberto",
       cooperado: email,
@@ -164,7 +170,7 @@ onAuthStateChanged(auth, async (user) => {
       abrirChamado(user.email);
 
     } else {
-      // Atendente: mostrar lista de chamados que ele pode atender
+      // Atendente: mostrar lista de chamados
       chamadosListContainer.style.display = "block";
       listarChamadosAtendente(user.email);
     }
