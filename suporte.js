@@ -157,7 +157,7 @@ onAuthStateChanged(auth, async (user)=>{
       const chamadoSnap = await getDoc(chamadoRef);
 
       if(!chamadoSnap.exists()){
-        const atendentes = ["atendente1@email.com","atendente2@email.com","atendente3@email.com"];
+        const atendentes = ["Rossato.pedrinho@gmail.com","Amandasa0210@gmail.com","gustazin.2501.albuquerque@gmail.com"];
         await setDoc(chamadoRef,{
           status:"aberto",
           cooperado:user.email,
