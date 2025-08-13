@@ -1,25 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-  doc,
-  setDoc,
-  getDoc
+  getFirestore, collection, addDoc, query, orderBy,
+  onSnapshot, serverTimestamp, doc, setDoc, getDoc, where
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// ---------- CONFIG FIREBASE ----------
+// --- CONFIG FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -34,7 +23,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------- ELEMENTOS ----------
+// --- ELEMENTOS ---
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const userEmailSpan = document.getElementById("userEmail");
@@ -47,54 +36,20 @@ const chamadosList = document.getElementById("chamadosList");
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 
-// ---------- LOGIN ----------
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (e) {
-    alert("Erro no login: " + e.message);
-  }
-});
+// --- FUNÇÃO PARA ABRIR CHAT ---
+async function abrirChamado(emailCooperado){
+  conversaIdAtual = emailCooperado;
+  if(unsubscribeMensagens) unsubscribeMensagens();
+  chatBox.innerHTML="";
 
-// ---------- CADASTRO ----------
-document.getElementById("signupBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    alert("Cadastro realizado!");
-    await setDoc(doc(db, "users", email), { tipo: "cooperado" }, { merge: true });
-  } catch (e) {
-    alert("Erro no cadastro: " + e.message);
-  }
-});
-
-// ---------- LOGOUT ----------
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  await signOut(auth);
-  if (unsubscribeMensagens) unsubscribeMensagens();
-  conversaIdAtual = null;
-  chatBox.innerHTML = "";
-  chamadosList.innerHTML = "";
-});
-
-// ---------- ABRIR CHAMADO ----------
-async function abrirChamado(email) {
-  conversaIdAtual = email;
-  if (unsubscribeMensagens) unsubscribeMensagens();
-  chatBox.innerHTML = "";
-
-  const mensagensRef = collection(db, "chamados", conversaIdAtual, "mensagens");
+  const mensagensRef = collection(db,"chamados",conversaIdAtual,"mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, (snapshot) => {
-    chatBox.innerHTML = "";
-    snapshot.forEach((docSnap) => {
+  unsubscribeMensagens = onSnapshot(q,(snapshot)=>{
+    chatBox.innerHTML="";
+    snapshot.forEach(docSnap=>{
       const data = docSnap.data();
       const msgEl = document.createElement("div");
-      msgEl.classList.add("msg");
       msgEl.textContent = `${data.usuario}: ${data.texto}`;
       chatBox.appendChild(msgEl);
     });
@@ -102,69 +57,122 @@ async function abrirChamado(email) {
   });
 }
 
-// ---------- LISTAR CHAMADOS ----------
-function listarChamados() {
-  const chamadosRef = collection(db, "chamados");
-  onSnapshot(chamadosRef, (snapshot) => {
-    chamadosList.innerHTML = "";
-    snapshot.forEach((docSnap) => {
+// --- FUNÇÃO PARA LISTAR CHAMADOS DO ATENDENTE ---
+function listarChamadosAtendente(emailAtendente){
+  const chamadosRef = collection(db,"chamados");
+  const q = query(chamadosRef, where("atendentes","array-contains",emailAtendente));
+  onSnapshot(q,(snapshot)=>{
+    chamadosList.innerHTML="";
+    snapshot.forEach(docSnap=>{
       const li = document.createElement("li");
       li.textContent = docSnap.id;
-      li.style.cursor = "pointer";
-      li.onclick = () => abrirChamado(docSnap.id);
+      li.style.cursor="pointer";
+      li.onclick = ()=>abrirChamado(docSnap.id);
       chamadosList.appendChild(li);
     });
   });
 }
 
-// ---------- ENVIAR MENSAGEM ----------
-btnSend.addEventListener("click", async () => {
-  if (!conversaIdAtual) {
-    alert("Selecione um chamado");
-    return;
+// --- LOGIN ---
+document.getElementById("loginBtn").addEventListener("click", async ()=>{
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  try {
+    await signInWithEmailAndPassword(auth,email,password);
+  } catch(e){
+    alert("Erro no login: "+e.message);
   }
-  const msg = inputMsg.value.trim();
-  if (!msg) return;
+});
+
+// --- CADASTRO AUTOMÁTICO ---
+document.getElementById("signupBtn").addEventListener("click", async ()=>{
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
   try {
-    const mensagensRef = collection(db, "chamados", conversaIdAtual, "mensagens");
-    await addDoc(mensagensRef, {
+    // Cria usuário
+    await createUserWithEmailAndPassword(auth,email,password);
+
+    // Salva tipo cooperado
+    await setDoc(doc(db,"users",email),{tipo:"cooperado"},{merge:true});
+
+    // Cria chamado automático com 3 atendentes
+    const atendentes = ["atendente1@email.com","atendente2@email.com","atendente3@email.com"];
+    await setDoc(doc(db,"chamados",email),{
+      status:"aberto",
+      cooperado:email,
+      atendentes: atendentes
+    });
+
+    // Abre chat automaticamente
+    abrirChamado(email);
+    chamadosListContainer.style.display = "none";
+    alert("Cadastro realizado e chat criado automaticamente!");
+  } catch(e){
+    alert("Erro no cadastro: "+e.message);
+  }
+});
+
+// --- LOGOUT ---
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  await signOut(auth);
+  if(unsubscribeMensagens) unsubscribeMensagens();
+  conversaIdAtual=null;
+  chatBox.innerHTML="";
+  chamadosList.innerHTML="";
+});
+
+// --- ENVIAR MENSAGEM ---
+btnSend.addEventListener("click", async ()=>{
+  if(!conversaIdAtual){ alert("Selecione um chamado"); return; }
+  const msg = inputMsg.value.trim();
+  if(!msg) return;
+
+  try {
+    const mensagensRef = collection(db,"chamados",conversaIdAtual,"mensagens");
+    await addDoc(mensagensRef,{
       texto: msg,
       usuario: auth.currentUser.email,
       timestamp: serverTimestamp()
     });
-    inputMsg.value = "";
-  } catch (e) {
-    console.error("Erro ao enviar mensagem:", e);
+    inputMsg.value="";
+  } catch(e){
+    console.error("Erro ao enviar mensagem:",e);
   }
 });
 
-// ---------- VERIFICA LOGIN ----------
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    loginDiv.style.display = "none";
-    chatDiv.style.display = "flex";
+// --- VERIFICA LOGIN ---
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    loginDiv.style.display="none";
+    chatDiv.style.display="flex";
     userEmailSpan.textContent = user.email;
 
-    try {
-      const userDoc = await getDoc(doc(db, "users", user.email));
-      const tipo = userDoc.exists() ? userDoc.data().tipo : "cooperado";
-      console.log("Tipo do usuário:", tipo);
+    const userDoc = await getDoc(doc(db,"users",user.email));
+    const tipo = userDoc.exists()? userDoc.data().tipo : "cooperado";
 
-      if (tipo === "cooperado") {
-        await setDoc(doc(db, "chamados", user.email), { status: "aberto" }, { merge: true });
-        chamadosListContainer.style.display = "none";
-        abrirChamado(user.email);
-      } else {
-        chamadosListContainer.style.display = "block";
-        listarChamados();
+    if(tipo==="cooperado"){
+      const chamadoRef = doc(db,"chamados",user.email);
+      const chamadoSnap = await getDoc(chamadoRef);
+
+      if(!chamadoSnap.exists()){
+        const atendentes = ["atendente1@email.com","atendente2@email.com","atendente3@email.com"];
+        await setDoc(chamadoRef,{
+          status:"aberto",
+          cooperado:user.email,
+          atendentes:atendentes
+        });
       }
-    } catch (e) {
-      console.error("Erro ao carregar dados do usuário:", e);
+
+      chamadosListContainer.style.display="none";
+      abrirChamado(user.email);
+    } else {
+      chamadosListContainer.style.display="block";
+      listarChamadosAtendente(user.email);
     }
   } else {
-    loginDiv.style.display = "block";
-    chatDiv.style.display = "none";
-    conversaIdAtual = null;
+    loginDiv.style.display="block";
+    chatDiv.style.display="none";
+    conversaIdAtual=null;
   }
 });
