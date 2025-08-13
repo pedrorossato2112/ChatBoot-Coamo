@@ -65,7 +65,7 @@ function listarChamadosAtendente(emailAtendente){
     chamadosList.innerHTML="";
     snapshot.forEach(docSnap=>{
       const li = document.createElement("li");
-      li.textContent = docSnap.id;
+      li.textContent = docSnap.id; // ID do cooperado
       li.style.cursor="pointer";
       li.onclick = ()=>abrirChamado(docSnap.id);
       chamadosList.appendChild(li);
@@ -152,6 +152,7 @@ onAuthStateChanged(auth, async (user)=>{
     const tipo = userDoc.exists()? userDoc.data().tipo : "cooperado";
 
     if(tipo==="cooperado"){
+      // Cooperado cria ou abre chamado dele
       const chamadoRef = doc(db,"chamados",user.email);
       const chamadoSnap = await getDoc(chamadoRef);
 
@@ -166,10 +167,13 @@ onAuthStateChanged(auth, async (user)=>{
 
       chamadosListContainer.style.display="none";
       abrirChamado(user.email);
+
     } else {
+      // Atendente: lista todos os chamados que ele pode acessar
       chamadosListContainer.style.display="block";
       listarChamadosAtendente(user.email);
     }
+
   } else {
     loginDiv.style.display="block";
     chatDiv.style.display="none";
