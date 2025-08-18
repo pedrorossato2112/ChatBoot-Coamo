@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #e0f2e9;
+  background: #e6f5ea; /* verde claro de fundo geral */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,7 +10,7 @@ body {
 
 h1 {
   margin-bottom: 20px;
-  color: #333;
+  color: #2f5d32; /* verde escuro */
 }
 
 #loginDiv, #chatDiv {
@@ -25,7 +25,7 @@ h1 {
   width: 100%;
   padding: 10px;
   margin: 5px 0;
-  border: 1px solid #5aa897;
+  border: 1px solid #ccc;
   border-radius: 5px;
 }
 
@@ -39,11 +39,12 @@ button {
   margin-top: 10px;
   border: none;
   border-radius: 5px;
-  background: #5aa897;
+  background: #2f5d32; /* verde escuro */
   color: white;
   cursor: pointer;
   flex: 1;
   margin-right: 5px;
+  transition: background 0.3s;
 }
 
 button:last-child {
@@ -51,70 +52,64 @@ button:last-child {
 }
 
 button:hover {
-  background: #3b8c6e;
+  background: #1f3d21; /* verde mais escuro ao passar mouse */
 }
 
-#userApelidoDisplay {
+#userApelido {
   text-align: center;
   font-weight: bold;
   margin-bottom: 10px;
   font-size: 16px;
-  color: #2f5d45;
+  color: #2f5d32;
 }
 
-#chat-box {
+#mensagens {
   height: 300px;
   overflow-y: auto;
-  border: 1px solid #5aa897;
+  border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
-  background: #f0fdfa;
+  background: #d4efd3; /* verde bem claro para chat */
 }
 
 .msg {
   position: relative;
   padding: 8px 12px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  background-color: #a5f0c3;
+  margin: 5px 0;
+  border-radius: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
 }
 
 .msg.own {
-  background-color: #5aa897;
-  color: white;
+  background: #2f5d32; /* verde escuro para suas mensagens */
+  color: #fff;
+  align-self: flex-end;
+}
+
+.msg.friend {
+  background: #a8e0a2; /* verde claro para mensagens de amigos */
+  color: #000;
+  align-self: flex-start;
+}
+
+.msg .status {
+  font-size: 10px;
+  color: #333;
+  margin-top: 3px;
   text-align: right;
 }
 
-.menu-btn {
-  cursor: pointer;
+.msg span {
   font-weight: bold;
-  margin-left: 8px;
 }
 
-.menu-options {
-  display: none;
-  position: absolute;
-  top: 20px;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid #5aa897;
-  border-radius: 5px;
-  z-index: 10;
-  flex-direction: column;
-}
-
-.menu-options button {
-  background: none;
-  color: #5aa897;
-  border: none;
-  padding: 5px 10px;
-  width: 100%;
-  text-align: left;
+/* Menu dos 3 pontinhos */
+.msg span {
   cursor: pointer;
 }
 
-.menu-options button:hover {
-  background: #5aa897;
-  color: white;
+.msg div div.menu-item:hover {
+  background: #e0f0df;
 }
