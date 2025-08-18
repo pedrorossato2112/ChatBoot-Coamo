@@ -1,48 +1,35 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat Suporte APPLOG</title>
-  <link rel="stylesheet" href="suporte.css" />
-</head>
-<body>
+<h1>Chat Suporte APPLOG</h1>
 
-  <h1>Chat Suporte APPLOG</h1>
+<div id="loginDiv">
+  <input type="text" id="apelidoLogin" placeholder="Seu apelido" />
+  <input type="email" id="email" placeholder="Seu email" />
+  <input type="password" id="password" placeholder="Senha" />
+  <div class="buttons">
+    <button id="loginBtn">Entrar</button>
+    <button id="signupBtn">Cadastrar</button>
+  </div>
+</div>
 
-  <!-- LOGIN -->
-  <div id="loginDiv">
-    <input type="email" id="email" placeholder="Seu email" />
-    <input type="password" id="password" placeholder="Senha" />
-    <div class="buttons">
-      <button id="loginBtn">Login</button>
-      <button id="signupBtn">Cadastrar</button>
-    </div>
+<div id="chatDiv" style="display:none; flex-direction: column;">
+  <p>Logado como: <span id="userApelido"></span> (<span id="userEmail"></span>) <button id="logoutBtn">Sair</button></p>
+
+  <div id="friendSelect" style="margin-bottom: 10px;">
+    <select id="contatosSalvos" style="width: 100%; margin-bottom: 10px; display:none;"></select>
+    <input type="text" id="friendApelido" placeholder="Apelido do contato" />
+    <input type="email" id="friendEmail" placeholder="Digite o email da pessoa para conversar" />
+    <button id="startChatBtn">Abrir conversa</button>
   </div>
 
-  <!-- CHAT -->
-  <div id="chatDiv" style="display:none; flex-direction: row; gap: 20px;">
+  <div id="chat-box" style="flex-grow: 1; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 6px; background: #fafafa; max-height: 400px;"></div>
 
-    <!-- LISTA DE CHAMADOS (para atendentes) -->
-    <div id="chamadosListContainer">
-      <h3>Chamados Abertos</h3>
-      <ul id="chamadosList"></ul>
-    </div>
-
-    <!-- CHAT BOX -->
-    <div id="chatBoxContainer">
-      <p>Logado como: <span id="userEmail"></span> <button id="logoutBtn">Sair</button></p>
-
-      <div id="chat-box"></div>
-
-      <div id="input-container">
-        <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off" />
-        <button id="btn-send">Enviar</button>
-      </div>
-    </div>
-
+  <div id="respostaBox" style="display:none; border-left: 4px solid #4b6cb7; background:#e1eaff; padding: 6px 10px; margin-top: 8px; border-radius: 4px; font-style: italic; position: relative;">
+    <!-- conteúdo gerado por JS -->
   </div>
 
-  <script type="module" src="suporte.js"></script>
-</body>
-</html>
+  <div id="typingIndicator" style="height: 20px; margin-top: 5px; font-style: italic; color: #666;"></div>
+
+  <div id="input-container" style="display: flex; margin-top: 10px;">
+    <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off" style="flex-grow:1; padding: 10px; font-size: 16px; border-radius: 6px 0 0 6px; border: 1px solid #ccc; border-right: none;" />
+    <button id="btn-send" style="padding: 0 20px; font-size: 16px; border-radius: 0 6px 6px 0; border: 1px solid #4b6cb7; background: #4b6cb7; color: white; cursor: pointer;">Enviar</button>
+  </div>
+</div>
