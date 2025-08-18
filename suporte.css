@@ -1,137 +1,90 @@
-/* ---------- RESET ---------- */
 body {
   font-family: Arial, sans-serif;
   background: #e6f4ea; /* verde claro */
-  margin: 0;
-  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0;
+  padding: 20px;
   height: 100vh;
 }
 
-/* ---------- LOGIN ---------- */
-#loginDiv {
-  background: white;
-  padding: 40px 30px;
-  border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+h1 {
+  margin-bottom: 20px;
+  color: #2e7d32; /* verde escuro */
 }
 
-#loginDiv input {
+#loginDiv, #chatDiv {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#loginDiv input, #chatDiv input {
   width: 100%;
-  padding: 14px;
-  margin: 12px 0;
+  padding: 12px;
+  margin: 8px 0;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .buttons {
-  width: 100%;
   display: flex;
   justify-content: space-between;
 }
 
 button {
-  flex: 1;
-  margin: 5px;
-  padding: 14px;
+  padding: 12px;
+  margin-top: 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   background: #2e7d32; /* verde escuro */
   color: white;
-  font-weight: bold;
   cursor: pointer;
-  font-size: 16px;
+  flex: 1;
+  margin-right: 5px;
+}
+
+button:last-child {
+  margin-right: 0;
 }
 
 button:hover {
   background: #1b5e20;
 }
 
-/* ---------- CHAT ---------- */
-#chatDiv {
-  display: none;
-  width: 1000px;
-  height: 650px;
-  background: #f0f9f4; /* verde claro */
-  border-radius: 12px;
-  display: flex;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-/* ----- SIDEBAR CONTATOS ----- */
-#contatosBox {
-  background: #ffffff;
-  width: 250px;
-  min-width: 200px;
-  max-height: 100%;
-  overflow-y: auto;
-  border-right: 2px solid #ccc;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-}
-
-.contatoItem {
-  padding: 12px;
-  background: #e0f2e9;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: black;
-  font-weight: bold;
-  text-align: center;
-  transition: background 0.2s;
-}
-
-.contatoItem:hover {
-  background: #c8e6c9;
-}
-
-/* ----- CHAT PRINCIPAL ----- */
-#chatContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 #userApelidoDisplay {
   text-align: center;
   font-weight: bold;
-  font-size: 18px;
-  padding: 12px;
-  background: #2e7d32; /* verde escuro */
-  color: white;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #444;
 }
 
 #chat-box {
-  flex: 1;
-  padding: 20px;
+  height: 350px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  background: #f0f9f4;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background: #f0f9f4; /* verde claro */
+  margin-bottom: 10px;
 }
 
 .msg {
-  padding: 10px 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
   max-width: 70%;
   word-wrap: break-word;
-  font-size: 14px;
   position: relative;
 }
 
 .msg.own {
-  background: #a5d6a7; /* verde claro */
+  background: #a5d6a7; /* verde claro escuro */
   align-self: flex-end;
 }
 
@@ -140,11 +93,6 @@ button:hover {
   align-self: flex-start;
 }
 
-.msg span {
-  font-weight: bold;
-}
-
-/* 3 PONTOS MENU */
 .msg-options {
   position: absolute;
   top: 8px;
@@ -159,7 +107,7 @@ button:hover {
 .msg-menu {
   display: none;
   position: absolute;
-  top: 30px;
+  top: 28px;
   right: 8px;
   background: white;
   border: 1px solid #ccc;
@@ -182,50 +130,4 @@ button:hover {
 
 .msg-menu button:hover {
   background: #f0f0f0;
-}
-
-/* ----- INPUT MENSAGEM ----- */
-#inputContainer {
-  display: flex;
-  padding: 12px;
-  background: #ffffff;
-  border-top: 1px solid #ccc;
-}
-
-#input-msg {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-}
-
-#btn-send {
-  margin-left: 8px;
-  background: #2e7d32;
-  color: white;
-  font-weight: bold;
-}
-
-/* ----- TYPING ----- */
-#typingIndicator {
-  font-size: 14px;
-  color: #555;
-  padding: 4px 10px;
-}
-
-/* ----- MODAL APELIDO ----- */
-#nicknameModal {
-  position: fixed;
-  top:0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-
-#nicknameModal div {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
 }
