@@ -95,7 +95,7 @@ button:last-child {
 
 /* Sidebar contatos */
 .sidebar {
-  width: 220px;
+  width: 200px;
   background: #c6f6d5; /* verde claro */
   padding: 15px;
   display: flex;
@@ -113,7 +113,7 @@ button:last-child {
 #contatosBox {
   flex: 1;
   overflow-y: auto;
-  max-height: 300px;
+  max-height: 250px;
   margin-bottom: 10px;
   border: 1px solid #a0aec0;
   border-radius: 8px;
