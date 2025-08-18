@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #e6f5ea; /* verde claro de fundo geral */
+  background: #dfffe0; /* verde claro */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,18 +10,20 @@ body {
 
 h1 {
   margin-bottom: 20px;
-  color: #2f5d32; /* verde escuro */
+  color: #2e7d32; /* verde escuro */
 }
 
 #loginDiv, #chatDiv {
-  background: #ffffff;
+  background: white;
   padding: 20px;
   border-radius: 10px;
   width: 350px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
 }
 
-#loginDiv input, #chatDiv input {
+#loginDiv input, #chatDiv input, #nicknameModal input, select {
   width: 100%;
   padding: 10px;
   margin: 5px 0;
@@ -39,12 +41,11 @@ button {
   margin-top: 10px;
   border: none;
   border-radius: 5px;
-  background: #2f5d32; /* verde escuro */
+  background: #2e7d32;
   color: white;
   cursor: pointer;
   flex: 1;
   margin-right: 5px;
-  transition: background 0.3s;
 }
 
 button:last-child {
@@ -52,64 +53,75 @@ button:last-child {
 }
 
 button:hover {
-  background: #1f3d21; /* verde mais escuro ao passar mouse */
+  background: #1b5e20;
 }
 
-#userApelido {
+#userApelidoDisplay {
   text-align: center;
   font-weight: bold;
   margin-bottom: 10px;
   font-size: 16px;
-  color: #2f5d32;
+  color: #2e7d32;
 }
 
-#mensagens {
+#chat-box {
   height: 300px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
-  background: #d4efd3; /* verde bem claro para chat */
+  background: #e8f5e9;
 }
 
 .msg {
-  position: relative;
-  padding: 8px 12px;
+  padding: 8px;
   margin: 5px 0;
-  border-radius: 10px;
+  border-radius: 8px;
+  position: relative;
   max-width: 80%;
   word-wrap: break-word;
 }
 
-.msg.own {
-  background: #2f5d32; /* verde escuro para suas mensagens */
-  color: #fff;
+.own {
+  background: #a5d6a7;
   align-self: flex-end;
 }
 
-.msg.friend {
-  background: #a8e0a2; /* verde claro para mensagens de amigos */
-  color: #000;
+.friend {
+  background: #81c784;
   align-self: flex-start;
 }
 
-.msg .status {
-  font-size: 10px;
-  color: #333;
-  margin-top: 3px;
-  text-align: right;
-}
-
-.msg span {
+.msg-options {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
   font-weight: bold;
 }
 
-/* Menu dos 3 pontinhos */
-.msg span {
+.msg-options-menu {
+  display: none;
+  position: absolute;
+  top: 20px;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  z-index: 10;
+}
+
+.msg-options-menu button {
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  text-align: left;
+  background: none;
+  border: none;
   cursor: pointer;
 }
 
-.msg div div.menu-item:hover {
-  background: #e0f0df;
+.msg-options-menu button:hover {
+  background: #c8e6c9;
 }
