@@ -61,7 +61,7 @@ async function abrirChamado(chamadoId) {
 // --- LISTAR CHAMADOS PARA ATENDENTE ---
 function listarChamadosAtendente(emailAtendente) {
   const chamadosRef = collection(db, "chamados");
-  const q = query(chamadosRef, where("atendentes", "array-contains", emailAtendente));
+  const q = query(chamadosRef, where("status", "==", "aberto"));
 
   onSnapshot(q, snapshot => {
     chamadosList.innerHTML = "";
@@ -72,11 +72,15 @@ function listarChamadosAtendente(emailAtendente) {
       return;
     }
     snapshot.docs.forEach(docSnap => {
-      const li = document.createElement("li");
-      li.textContent = docSnap.id; // ID do cooperado
-      li.style.cursor = "pointer";
-      li.onclick = () => abrirChamado(docSnap.id);
-      chamadosList.appendChild(li);
+      const data = docSnap.data();
+      // Mostrar somente chamados onde atendente está incluído
+      if (data.atendentes.includes(emailAtendente)) {
+        const li = document.createElement("li");
+        li.textContent = data.cooperado;
+        li.style.cursor = "pointer";
+        li.onclick = () => abrirChamado(docSnap.id);
+        chamadosList.appendChild(li);
+      }
     });
   });
 }
@@ -85,8 +89,11 @@ function listarChamadosAtendente(emailAtendente) {
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  try { await signInWithEmailAndPassword(auth, email, password); }
-  catch (e) { alert("Erro no login: " + e.message); }
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (e) {
+    alert("Erro no login: " + e.message);
+  }
 });
 
 // --- CADASTRO ---
@@ -99,7 +106,7 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
     await setDoc(doc(db, "users", email), { tipo: "cooperado" }, { merge: true });
 
     // Criar chamado automático para cooperado
-    const atendentes = ["rossato.pedrinho@gmail.com", "Amandasa0210@gmail.com", "gustazin.2501.albuquerque@gmail.com"];
+    const atendentes = ["rossato.pedrinho@gmail.com"];
     await setDoc(doc(db, "chamados", email), {
       status: "aberto",
       cooperado: email,
@@ -158,7 +165,7 @@ onAuthStateChanged(auth, async (user) => {
       const chamadoSnap = await getDoc(chamadoRef);
 
       if (!chamadoSnap.exists()) {
-        const atendentes = ["rossato.pedrinho@gmail.com", "Amandasa0210@gmail.com", "gustazin.2501.albuquerque@gmail.com"];
+        const atendentes = ["rossato.pedrinho@gmail.com"];
         await setDoc(chamadoRef, {
           status: "aberto",
           cooperado: user.email,
