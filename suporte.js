@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc, getDoc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc, deleteDoc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
@@ -143,7 +143,6 @@ function atualizarRespostaUI() {
 }
 
 async function abrirConversa(conversaId) {
-  // Remove listeners antigos
   if (unsubscribeMensagens) { unsubscribeMensagens(); unsubscribeMensagens = null; }
   if (unsubscribeTyping) { unsubscribeTyping(); unsubscribeTyping = null; }
 
@@ -180,15 +179,55 @@ async function abrirConversa(conversaId) {
         textoMsg += `${apelidoResposta}: ${data.respondeA.texto}\n→ `;
       }
       textoMsg += data.texto;
-      msgEl.textContent = textoMsg;
 
-      msgEl.style.cursor = "pointer";
-      msgEl.title = "Clique para responder";
-      msgEl.addEventListener("click", () => {
-        respostaMsg = { id, texto: data.texto, usuario: data.usuario };
-        atualizarRespostaUI();
-        inputMsg.focus();
-      });
+      const textContentEl = document.createElement("span");
+      textContentEl.textContent = textoMsg;
+      msgEl.appendChild(textContentEl);
+
+      // Menu de opções (três pontinhos)
+      if (data.usuario === auth.currentUser.email) {
+        const menuBtn = document.createElement("span");
+        menuBtn.textContent = "⋮";
+        menuBtn.classList.add("menu-btn");
+        msgEl.appendChild(menuBtn);
+
+        const menu = document.createElement("div");
+        menu.classList.add("msg-menu");
+        menu.innerHTML = `
+          <button class="editar">Editar</button>
+          <button class="copiar">Copiar</button>
+          <button class="apagar">Apagar</button>
+        `;
+        msgEl.appendChild(menu);
+
+        menuBtn.onclick = () => {
+          menu.classList.toggle("show");
+        };
+
+        // Editar
+        menu.querySelector(".editar").onclick = async () => {
+          const novoTexto = prompt("Edite sua mensagem:", data.texto);
+          if (novoTexto && novoTexto.trim() !== "") {
+            await updateDoc(docSnap.ref, { texto: novoTexto });
+          }
+          menu.classList.remove("show");
+        };
+
+        // Copiar
+        menu.querySelector(".copiar").onclick = () => {
+          navigator.clipboard.writeText(data.texto);
+          alert("Mensagem copiada!");
+          menu.classList.remove("show");
+        };
+
+        // Apagar
+        menu.querySelector(".apagar").onclick = async () => {
+          if (confirm("Deseja apagar esta mensagem?")) {
+            await deleteDoc(docSnap.ref);
+          }
+          menu.classList.remove("show");
+        };
+      }
 
       if (data.usuario === auth.currentUser.email) {
         const outros = data.lidoPor.filter(email => email !== auth.currentUser.email);
@@ -282,8 +321,8 @@ onAuthStateChanged(auth, async (user) => {
     const apelido = apelidosCache[user.email] || user.email;
     userApelidoDisplay.textContent = apelido;
 
-    btnSend.disabled = true;
-    inputMsg.disabled = true;
+    btnSend.disabled = false;
+    inputMsg.disabled = false;
     carregarContatos();
 
     esconderNicknameModal();

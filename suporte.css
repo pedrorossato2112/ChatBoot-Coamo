@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  background: #e8f5e9; /* verde claro */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,14 +10,14 @@ body {
 
 h1 {
   margin-bottom: 20px;
-  color: #333;
+  color: #2e7d32; /* verde escuro */
 }
 
 #loginDiv, #chatDiv {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  width: 300px;
+  width: 320px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
@@ -39,11 +39,12 @@ button {
   margin-top: 10px;
   border: none;
   border-radius: 5px;
-  background: #5a67d8;
+  background: #43a047; /* verde médio */
   color: white;
   cursor: pointer;
   flex: 1;
   margin-right: 5px;
+  transition: background 0.3s ease;
 }
 
 button:last-child {
@@ -51,7 +52,7 @@ button:last-child {
 }
 
 button:hover {
-  background: #434190;
+  background: #2e7d32; /* verde escuro */
 }
 
 #userApelido {
@@ -59,15 +60,71 @@ button:hover {
   font-weight: bold;
   margin-bottom: 10px;
   font-size: 16px;
-  color: #444;
+  color: #2e7d32; /* verde escuro */
 }
 
-#messages {
+#messages, #chat-box {
   height: 300px;
   overflow-y: auto;
-  border: 1px solid #ddd;
+  border: 1px solid #c8e6c9; /* verde bem claro */
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
-  background: #fafafa;
+  background: #f1f8f6; /* fundo suave */
+}
+
+.msg {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 5px 0;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+.msg.own {
+  background: #a5d6a7; /* verde claro */
+  align-self: flex-end;
+}
+
+.msg.friend {
+  background: #c8e6c9; /* verde mais suave */
+  align-self: flex-start;
+}
+
+/* Três pontinhos (menu de opções) */
+.msg .menu {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #2e7d32; /* verde escuro */
+}
+
+.msg .options {
+  display: none;
+  position: absolute;
+  top: 20px;
+  right: 5px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+.msg .options button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+}
+
+.msg .options button:hover {
+  background: #e8f5e9; /* verde claro no hover */
 }

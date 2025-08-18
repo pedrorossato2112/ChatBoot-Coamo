@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +8,22 @@
 </head>
 <body>
   <h1>Chat Suporte APPLOG</h1>
-  
+
   <div id="loginDiv">
     <input type="text" id="apelidoLogin" placeholder="Seu apelido">
     <input type="email" id="email" placeholder="Seu email">
     <input type="password" id="password" placeholder="Senha">
     <div class="buttons">
-      <button onclick="login()">Entrar</button>
-      <button onclick="register()">Registrar</button>
+      <button id="loginBtn">Entrar</button>
+      <button id="registerBtn">Registrar</button>
     </div>
   </div>
 
   <div id="chatDiv" style="display: none;">
-    <div id="userApelido"></div>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Digite sua mensagem...">
-    <button onclick="sendMessage()">Enviar</button>
+    <div id="mensagens"></div>
+    <input type="text" id="novaMensagem" placeholder="Digite sua mensagem...">
+    <button id="enviarBtn">Enviar</button>
+    <button id="logoutBtn">Sair</button>
   </div>
 
   <script type="module" src="suporte.js"></script>
