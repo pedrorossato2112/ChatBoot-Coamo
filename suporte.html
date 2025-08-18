@@ -7,10 +7,8 @@
   <link rel="stylesheet" href="suporte.css">
 </head>
 <body>
-  <h1>Chat Suporte APPLOG</h1>
-
-  <!-- LOGIN -->
   <div id="loginDiv">
+    <h1>Chat APPLOG</h1>
     <input type="text" id="apelidoLogin" placeholder="Seu apelido">
     <input type="email" id="email" placeholder="Seu email">
     <input type="password" id="password" placeholder="Senha">
@@ -20,14 +18,35 @@
     </div>
   </div>
 
-  <!-- CHAT -->
-  <div id="chatDiv" style="display:none;">
-    <div id="userApelidoDisplay"></div>
-    <div id="contatosSalvos"></div>
-    <div id="mensagens"></div>
-    <input type="text" id="novaMensagem" placeholder="Digite sua mensagem...">
-    <button id="enviarBtn">Enviar</button>
-    <button id="logoutBtn">Sair</button>
+  <div id="chatDiv">
+    <div class="sidebar">
+      <h2>Contatos</h2>
+      <div id="contatosBox"></div>
+      <input type="text" id="friendEmail" placeholder="Email do amigo">
+      <input type="text" id="friendApelido" placeholder="Apelido do amigo">
+      <button id="startChatBtn">Iniciar Conversa</button>
+    </div>
+
+    <div class="mainChat">
+      <div id="userApelidoDisplay"></div>
+      <div id="chat-box"></div>
+      <div id="typingIndicator"></div>
+      <div id="respostaBox"></div>
+      <div class="inputArea">
+        <input type="text" id="input-msg" placeholder="Digite sua mensagem...">
+        <button id="btn-send">Enviar</button>
+      </div>
+      <button id="logoutBtn" class="logoutBtn">Sair</button>
+    </div>
+  </div>
+
+  <!-- Modal apelido -->
+  <div id="nicknameModal">
+    <div class="modalContent">
+      <h3>Defina seu apelido</h3>
+      <input type="text" id="nicknameInput" placeholder="Digite seu apelido">
+      <button id="saveNicknameBtn">Salvar</button>
+    </div>
   </div>
 
   <script type="module" src="suporte.js"></script>
