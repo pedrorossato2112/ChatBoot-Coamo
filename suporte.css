@@ -1,5 +1,4 @@
-/* Paleta de cores: verde claro, verde escuro, branco, preto, cinza */
-
+/* ---------------- BODY ---------------- */
 body {
   font-family: Arial, sans-serif;
   background: #e0f2e9;
@@ -11,7 +10,7 @@ body {
   height: 100vh;
 }
 
-/* ------------------ LOGIN ------------------ */
+/* ---------------- LOGIN ---------------- */
 #loginDiv {
   background: white;
   padding: 40px 30px;
@@ -73,7 +72,7 @@ button:last-child {
   background: #48bb78;
 }
 
-/* ------------------ CHAT ------------------ */
+/* ---------------- CHAT ---------------- */
 #chatDiv {
   display: none;
   width: 90%;
@@ -87,22 +86,25 @@ button:last-child {
 
 /* Sidebar contatos */
 .sidebar {
-  width: 250px;
+  width: 220px;
   background: #c6f6d5; /* verde claro */
-  padding: 20px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .sidebar h2 {
   margin-top: 0;
   color: #276749; /* verde escuro */
   text-align: center;
+  margin-bottom: 10px;
 }
 
 #contatosBox {
   flex: 1;
   overflow-y: auto;
+  max-height: 300px;
   margin-bottom: 10px;
   border: 1px solid #a0aec0;
   border-radius: 8px;
@@ -111,16 +113,26 @@ button:last-child {
 }
 
 .contatoItem {
-  padding: 8px;
-  margin: 5px 0;
+  padding: 6px;
+  margin: 4px 0;
   background: #e6fffa;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 14px;
 }
 
 .contatoItem:hover {
   background: #b2f5ea;
+}
+
+/* Inputs sidebar */
+.sidebar input {
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 6px;
+  border: 1px solid #cbd5e0;
+  font-size: 13px;
 }
 
 /* Main chat */
