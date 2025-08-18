@@ -6,7 +6,6 @@ import {
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -21,7 +20,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Elementos
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const inputMsg = document.getElementById("input-msg");
@@ -37,7 +35,6 @@ let unsubscribeMensagens = null;
 let apelidosCache = {};
 let respostaMsg = null;
 
-// Funções
 function gerarIdConversa(usuario1, usuario2) {
   return [usuario1, usuario2].sort().join("_");
 }
@@ -101,7 +98,6 @@ async function abrirConversa(conversaId) {
       const apelido = await getApelido(data.usuario);
       msgEl.textContent = data.texto;
 
-      // Menu 3 pontinhos
       const menuBtn = document.createElement("span");
       menuBtn.textContent = "⋮";
       menuBtn.classList.add("menu-btn");
@@ -145,7 +141,6 @@ async function abrirConversa(conversaId) {
   });
 }
 
-// Eventos
 saveNicknameBtn.addEventListener("click", async () => {
   const apelido = nicknameInput.value.trim();
   if (apelido.length < 2) return alert("Digite um apelido com pelo menos 2 caracteres.");
@@ -175,7 +170,6 @@ btnSend.addEventListener("click", async () => {
   inputMsg.value = "";
 });
 
-// Autenticação
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     loginDiv.style.display = "none";
