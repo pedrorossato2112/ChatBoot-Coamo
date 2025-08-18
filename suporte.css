@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #e0f7e9;
+  background: #e0f2e9;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,22 +10,22 @@ body {
 
 h1 {
   margin-bottom: 20px;
-  color: #2e7d32;
+  color: #333;
 }
 
 #loginDiv, #chatDiv {
-  background: #a5d6a7;
+  background: #ffffff;
   padding: 20px;
   border-radius: 10px;
   width: 350px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 #loginDiv input, #chatDiv input {
   width: 100%;
   padding: 10px;
   margin: 5px 0;
-  border: 1px solid #388e3c;
+  border: 1px solid #5aa897;
   border-radius: 5px;
 }
 
@@ -39,7 +39,7 @@ button {
   margin-top: 10px;
   border: none;
   border-radius: 5px;
-  background: #388e3c;
+  background: #5aa897;
   color: white;
   cursor: pointer;
   flex: 1;
@@ -51,79 +51,70 @@ button:last-child {
 }
 
 button:hover {
-  background: #1b5e20;
+  background: #3b8c6e;
 }
 
 #userApelidoDisplay {
   text-align: center;
   font-weight: bold;
   margin-bottom: 10px;
-  font-size: 18px;
-  color: #1b5e20;
+  font-size: 16px;
+  color: #2f5d45;
 }
 
 #chat-box {
   height: 300px;
   overflow-y: auto;
-  border: 1px solid #2e7d32;
+  border: 1px solid #5aa897;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
-  background: #f1f8e9;
+  background: #f0fdfa;
 }
 
 .msg {
-  padding: 5px 10px;
-  margin: 5px 0;
-  border-radius: 8px;
   position: relative;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background-color: #a5f0c3;
 }
 
-.own {
-  background: #81c784;
-  align-self: flex-end;
-}
-
-.friend {
-  background: #c8e6c9;
-  align-self: flex-start;
-}
-
-.status {
-  font-size: 10px;
-  color: #555;
-  margin-left: 5px;
+.msg.own {
+  background-color: #5aa897;
+  color: white;
+  text-align: right;
 }
 
 .menu-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
   cursor: pointer;
+  font-weight: bold;
+  margin-left: 8px;
 }
 
 .menu-options {
   display: none;
   position: absolute;
   top: 20px;
-  right: 5px;
-  background: #a5d6a7;
-  border: 1px solid #2e7d32;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #5aa897;
   border-radius: 5px;
-  z-index: 100;
+  z-index: 10;
+  flex-direction: column;
 }
 
 .menu-options button {
-  display: block;
-  width: 100%;
-  border-radius: 0;
-  margin: 0;
-  padding: 5px 10px;
-  text-align: left;
   background: none;
-  color: #1b5e20;
+  color: #5aa897;
+  border: none;
+  padding: 5px 10px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .menu-options button:hover {
-  background: #81c784;
+  background: #5aa897;
+  color: white;
 }
