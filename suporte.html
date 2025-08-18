@@ -23,24 +23,33 @@
   <!-- CHAT -->
   <div id="chatDiv" style="display:none;">
     <div id="userApelidoDisplay"></div>
-    <select id="contatosSalvos" style="display:none;">
-      <option value="">Escolha um contato</option>
-    </select>
-    <input type="text" id="friendEmail" placeholder="Email do amigo">
-    <input type="text" id="friendApelido" placeholder="Apelido do amigo">
-    <button id="startChatBtn">Iniciar conversa</button>
-    <div id="typingIndicator"></div>
+
+    <!-- Lista de contatos -->
+    <div id="contatosDiv">
+      <h3>Contatos</h3>
+      <select id="contatosSalvos"></select>
+      <input type="email" id="friendEmail" placeholder="Email do amigo">
+      <input type="text" id="friendApelido" placeholder="Apelido do amigo">
+      <button id="startChatBtn">Iniciar conversa</button>
+    </div>
+
     <div id="chat-box"></div>
+    <div id="typingIndicator"></div>
+
     <div id="respostaBox" style="display:none;"></div>
+
     <input type="text" id="input-msg" placeholder="Digite sua mensagem...">
     <button id="btn-send">Enviar</button>
     <button id="logoutBtn">Sair</button>
   </div>
 
-  <!-- MODAL APELIDO -->
-  <div id="nicknameModal" style="display:none;">
-    <input type="text" id="nicknameInput" placeholder="Digite seu apelido">
-    <button id="saveNicknameBtn">Salvar Apelido</button>
+  <!-- Modal apelido -->
+  <div id="nicknameModal">
+    <div id="nicknameModalContent">
+      <h3>Escolha seu apelido</h3>
+      <input type="text" id="nicknameInput">
+      <button id="saveNicknameBtn">Salvar</button>
+    </div>
   </div>
 
   <script type="module" src="suporte.js"></script>
