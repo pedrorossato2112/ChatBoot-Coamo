@@ -1,4 +1,4 @@
-/* ---------- RESET E BASE ---------- */
+/* ---------- RESET ---------- */
 body {
   font-family: Arial, sans-serif;
   background: #e6f4ea; /* verde claro */
@@ -13,11 +13,11 @@ body {
 /* ---------- LOGIN ---------- */
 #loginDiv {
   background: white;
-  padding: 30px 20px;
+  padding: 40px 30px;
   border-radius: 12px;
   width: 350px;
   max-width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,8 +25,8 @@ body {
 
 #loginDiv input {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
+  padding: 14px;
+  margin: 12px 0;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
@@ -41,14 +41,14 @@ body {
 button {
   flex: 1;
   margin: 5px;
-  padding: 12px;
+  padding: 14px;
   border: none;
   border-radius: 8px;
   background: #2e7d32; /* verde escuro */
   color: white;
   font-weight: bold;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 button:hover {
@@ -59,97 +59,137 @@ button:hover {
 #chatDiv {
   display: none;
   width: 90%;
-  max-width: 1000px;
+  max-width: 1100px;
   height: 90vh;
   background: #f0f9f4; /* verde claro */
   border-radius: 12px;
   display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
-/* ----- HEADER ------ */
-#userApelidoDisplay {
-  text-align: center;
-  font-weight: bold;
-  font-size: 18px;
-  padding: 10px;
-  background: #2e7d32; /* verde escuro */
-  color: white;
-}
-
-/* ----- CONTATOS ----- */
+/* ----- SIDEBAR CONTATOS ----- */
 #contatosBox {
   background: #ffffff;
-  width: 200px;
-  min-width: 150px;
-  max-height: 80%;
+  width: 220px;
+  min-width: 180px;
+  max-height: 100%;
   overflow-y: auto;
   border-right: 2px solid #ccc;
-  padding: 10px;
-  border-radius: 0 0 0 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
 .contatoItem {
-  padding: 10px;
+  padding: 12px;
   background: #e0f2e9;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   border-radius: 8px;
   cursor: pointer;
   color: black;
   font-weight: bold;
+  text-align: center;
+  transition: background 0.2s;
 }
 
 .contatoItem:hover {
   background: #c8e6c9;
 }
 
-/* ----- MENSAGENS ----- */
+/* ----- CHAT PRINCIPAL ----- */
 #chatContent {
   flex: 1;
   display: flex;
-  overflow: hidden;
+  flex-direction: column;
+}
+
+#userApelidoDisplay {
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 12px;
+  background: #2e7d32; /* verde escuro */
+  color: white;
 }
 
 #chat-box {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  background: #f0f9f4;
 }
 
 .msg {
   padding: 10px 15px;
   border-radius: 12px;
   margin-bottom: 10px;
-  max-width: 75%;
-  position: relative;
+  max-width: 70%;
   word-wrap: break-word;
   font-size: 14px;
+  position: relative;
 }
 
 .msg.own {
   background: #a5d6a7; /* verde claro */
   align-self: flex-end;
-  color: black;
 }
 
 .msg.friend {
-  background: #c8e6c9; /* verde claro mais claro */
+  background: #c8e6c9;
   align-self: flex-start;
+}
+
+.msg span {
+  font-weight: bold;
+}
+
+/* 3 PONTOS MENU */
+.msg-options {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  cursor: pointer;
+  color: #2e7d32;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.msg-menu {
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 8px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.msg-menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
   color: black;
 }
 
-.msg span { /* 3 pontinhos */
-  font-weight: bold;
+.msg-menu button:hover {
+  background: #f0f0f0;
 }
 
 /* ----- INPUT MENSAGEM ----- */
 #inputContainer {
   display: flex;
-  padding: 10px;
+  padding: 12px;
   background: #ffffff;
   border-top: 1px solid #ccc;
 }
@@ -165,6 +205,8 @@ button:hover {
 #btn-send {
   margin-left: 8px;
   background: #2e7d32;
+  color: white;
+  font-weight: bold;
 }
 
 /* ----- TYPING ----- */
@@ -201,21 +243,22 @@ button:hover {
   #contatosBox {
     width: 100%;
     max-height: 120px;
-    display: flex;
+    flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
     border-right: none;
     border-bottom: 2px solid #ccc;
-    border-radius: 0;
+    padding: 8px;
   }
 
   .contatoItem {
     flex: 0 0 auto;
-    margin: 0 8px 0 0;
+    margin: 0 8px;
   }
 
   #chat-box {
     flex: 1;
+    padding: 10px;
   }
 
   #inputContainer {
