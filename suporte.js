@@ -8,7 +8,6 @@ import {
   signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// --- CONFIG FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -23,7 +22,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// --- ELEMENTOS ---
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const userEmailSpan = document.getElementById("userEmail");
@@ -36,7 +34,6 @@ const chamadosList = document.getElementById("chamadosList");
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 
-// --- ABRIR CHAT ---
 async function abrirChamado(chamadoId) {
   conversaIdAtual = chamadoId;
   if (unsubscribeMensagens) unsubscribeMensagens();
@@ -47,21 +44,25 @@ async function abrirChamado(chamadoId) {
 
   unsubscribeMensagens = onSnapshot(q, snapshot => {
     chatBox.innerHTML = "";
+
     snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
       const msgEl = document.createElement("div");
-      msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
-      msgEl.textContent = `${data.usuario}: ${data.texto}`;
-      chatBox.appendChild(msgEl);
+
+      if (data.usuario === auth.currentUser.email || data.usuario === "atendente") {
+        msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
+        msgEl.textContent = `${data.usuario}: ${data.texto}`;
+        chatBox.appendChild(msgEl);
+      }
     });
+
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
 
-// --- LISTAR CHAMADOS PARA ATENDENTE ---
 function listarChamadosAtendente(emailAtendente) {
   const chamadosRef = collection(db, "chamados");
-  const q = query(chamadosRef, where("status", "==", "aberto"));
+  const q = query(chamadosRef, where("atendentes", "array-contains", emailAtendente));
 
   onSnapshot(q, snapshot => {
     chamadosList.innerHTML = "";
@@ -72,31 +73,22 @@ function listarChamadosAtendente(emailAtendente) {
       return;
     }
     snapshot.docs.forEach(docSnap => {
-      const data = docSnap.data();
-      // Mostrar somente chamados onde atendente está incluído
-      if (data.atendentes.includes(emailAtendente)) {
-        const li = document.createElement("li");
-        li.textContent = data.cooperado;
-        li.style.cursor = "pointer";
-        li.onclick = () => abrirChamado(docSnap.id);
-        chamadosList.appendChild(li);
-      }
+      const li = document.createElement("li");
+      li.textContent = docSnap.id;
+      li.style.cursor = "pointer";
+      li.onclick = () => abrirChamado(docSnap.id);
+      chamadosList.appendChild(li);
     });
   });
 }
 
-// --- LOGIN ---
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (e) {
-    alert("Erro no login: " + e.message);
-  }
+  try { await signInWithEmailAndPassword(auth, email, password); }
+  catch (e) { alert("Erro no login: " + e.message); }
 });
 
-// --- CADASTRO ---
 document.getElementById("signupBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
@@ -105,8 +97,12 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
     await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, "users", email), { tipo: "cooperado" }, { merge: true });
 
-    // Criar chamado automático para cooperado
-    const atendentes = ["rossato.pedrinho@gmail.com"];
+    const atendentes = [
+      "rossato.pedrinho@gmail.com",
+      "Amandasa0210@gmail.com",
+      "gustazin.2501.albuquerque@gmail.com"
+    ];
+
     await setDoc(doc(db, "chamados", email), {
       status: "aberto",
       cooperado: email,
@@ -121,7 +117,6 @@ document.getElementById("signupBtn").addEventListener("click", async () => {
   }
 });
 
-// --- LOGOUT ---
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   await signOut(auth);
   if (unsubscribeMensagens) unsubscribeMensagens();
@@ -130,7 +125,6 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   chamadosList.innerHTML = "";
 });
 
-// --- ENVIAR MENSAGEM ---
 btnSend.addEventListener("click", async () => {
   if (!conversaIdAtual) { alert("Selecione um chamado"); return; }
   const msg = inputMsg.value.trim();
@@ -138,18 +132,32 @@ btnSend.addEventListener("click", async () => {
 
   try {
     const mensagensRef = collection(db, "chamados", conversaIdAtual, "mensagens");
-    await addDoc(mensagensRef, {
-      texto: msg,
-      usuario: auth.currentUser.email,
-      timestamp: serverTimestamp()
-    });
+
+    const userDoc = await getDoc(doc(db, "users", auth.currentUser.email));
+    const tipo = userDoc.exists() ? userDoc.data().tipo : "cooperado";
+
+    if (tipo === "cooperado") {
+      await addDoc(mensagensRef, {
+        texto: msg,
+        usuario: auth.currentUser.email,
+        destinatarios: ["atendentes"],
+        timestamp: serverTimestamp()
+      });
+    } else {
+      await addDoc(mensagensRef, {
+        texto: msg,
+        usuario: "atendente",
+        destinatarios: [conversaIdAtual],
+        timestamp: serverTimestamp()
+      });
+    }
+
     inputMsg.value = "";
   } catch (e) {
     console.error("Erro ao enviar mensagem:", e);
   }
 });
 
-// --- VERIFICA LOGIN ---
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     loginDiv.style.display = "none";
@@ -160,12 +168,16 @@ onAuthStateChanged(auth, async (user) => {
     const tipo = userDoc.exists() ? userDoc.data().tipo : "cooperado";
 
     if (tipo === "cooperado") {
-      // Cooperado: cria ou abre seu chamado
       const chamadoRef = doc(db, "chamados", user.email);
       const chamadoSnap = await getDoc(chamadoRef);
 
       if (!chamadoSnap.exists()) {
-        const atendentes = ["rossato.pedrinho@gmail.com"];
+        const atendentes = [
+          "rossato.pedrinho@gmail.com",
+          "Amandasa0210@gmail.com",
+          "gustazin.2501.albuquerque@gmail.com"
+        ];
+
         await setDoc(chamadoRef, {
           status: "aberto",
           cooperado: user.email,
@@ -177,7 +189,6 @@ onAuthStateChanged(auth, async (user) => {
       abrirChamado(user.email);
 
     } else {
-      // Atendente: mostrar lista de chamados
       chamadosListContainer.style.display = "block";
       listarChamadosAtendente(user.email);
     }
