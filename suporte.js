@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc, getDoc, deleteDoc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
@@ -24,71 +24,27 @@ const auth = getAuth(app);
 // Elementos
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
-const inputMsg = document.getElementById("novaMensagem");
-const btnSend = document.getElementById("enviarBtn");
-const friendEmailInput = document.getElementById("friendEmail");
-const friendApelidoInput = document.getElementById("friendApelido");
-const startChatBtn = document.getElementById("startChatBtn");
-const contatosSalvosSelect = document.getElementById("contatosSalvos");
-const typingIndicator = document.getElementById("typingIndicator");
-const userApelidoDisplay = document.getElementById("userApelidoDisplay");
-const nicknameModal = document.getElementById("nicknameModal");
-const nicknameInput = document.getElementById("nicknameInput");
-const saveNicknameBtn = document.getElementById("saveNicknameBtn");
-const loginBtn = document.getElementById("loginBtn");
-const registerBtn = document.getElementById("registerBtn");
+const apelidoLogin = document.getElementById("apelidoLogin");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
-const apelidoLoginInput = document.getElementById("apelidoLogin");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const userApelidoDisplay = document.getElementById("userApelidoDisplay");
+const contatosSalvos = document.getElementById("contatosSalvos");
+const mensagensDiv = document.getElementById("mensagens");
+const novaMensagem = document.getElementById("novaMensagem");
+const enviarBtn = document.getElementById("enviarBtn");
 
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
-let unsubscribeTyping = null;
-let digitandoTimeout = null;
 let apelidosCache = {};
-let respostaMsg = null;
 
-// Funções utilitárias
-function gerarIdConversa(usuario1, usuario2) {
-  return [usuario1, usuario2].sort().join("_");
+// --- Funções ---
+function gerarIdConversa(email1, email2) {
+  return [email1, email2].sort().join("_");
 }
 
-async function salvarApelido(apelido) {
-  if (!auth.currentUser) return;
-  apelidosCache[auth.currentUser.email] = apelido;
-  localStorage.setItem("apelidosCache", JSON.stringify(apelidosCache));
-  try {
-    const userDocRef = doc(db, "users", auth.currentUser.email);
-    await setDoc(userDocRef, { nickname: apelido }, { merge: true });
-  } catch (err) {
-    console.error("Erro ao salvar apelido:", err);
-  }
-}
-
-async function carregarApelidosCache() {
-  const cacheLocal = localStorage.getItem("apelidosCache");
-  apelidosCache = cacheLocal ? JSON.parse(cacheLocal) : {};
-}
-
-async function getApelido(email) {
-  if (!email) return "Anônimo";
-  if (apelidosCache[email]) return apelidosCache[email];
-  try {
-    const userDocRef = doc(db, "users", email);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists() && userDocSnap.data().nickname) {
-      apelidosCache[email] = userDocSnap.data().nickname;
-      localStorage.setItem("apelidosCache", JSON.stringify(apelidosCache));
-      return apelidosCache[email];
-    }
-  } catch (err) {
-    console.error("Erro ao buscar apelido:", err);
-  }
-  return email;
-}
-
-// Contatos
 function salvarContato(email, apelido) {
   if (!email || !apelido) return;
   let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
@@ -101,158 +57,126 @@ function salvarContato(email, apelido) {
 }
 
 function carregarContatos() {
+  contatosSalvos.innerHTML = "";
   let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
-  contatosSalvosSelect.innerHTML = "";
   contatos.forEach(c => {
     const div = document.createElement("div");
-    div.classList.add("contato-item");
     div.textContent = c.apelido;
-    div.dataset.email = c.email;
-    div.addEventListener("click", () => {
-      abrirConversa(gerarIdConversa(auth.currentUser.email, c.email));
-    });
-    contatosSalvosSelect.appendChild(div);
+    div.classList.add("contato-item");
+    div.onclick = () => abrirConversa(gerarIdConversa(auth.currentUser.email, c.email));
+    contatosSalvos.appendChild(div);
   });
 }
 
-// Mensagens
+async function getApelido(email) {
+  if (!email) return "Anônimo";
+  if (apelidosCache[email]) return apelidosCache[email];
+  try {
+    const userDocRef = doc(db, "users", email);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists() && userDocSnap.data().nickname) {
+      apelidosCache[email] = userDocSnap.data().nickname;
+      return apelidosCache[email];
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return email;
+}
+
 async function abrirConversa(conversaId) {
   if (unsubscribeMensagens) unsubscribeMensagens();
   conversaIdAtual = conversaId;
-
-  const chatBox = document.getElementById("mensagens");
-  chatBox.innerHTML = "";
-
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, async (snapshot) => {
-    chatBox.innerHTML = "";
-    const contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
-    const apelidoUsuario = apelidosCache[auth.currentUser.email] || auth.currentUser.email;
-
+  unsubscribeMensagens = onSnapshot(q, async snapshot => {
+    mensagensDiv.innerHTML = "";
     for (const docSnap of snapshot.docs) {
       const data = docSnap.data();
-      const id = docSnap.id;
-
       const msgEl = document.createElement("div");
       msgEl.classList.add("msg");
       msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
+      msgEl.textContent = data.texto;
 
-      let remetenteApelido = data.usuario;
-      const contatoMsg = contatos.find(c => c.email === data.usuario);
-      if (contatoMsg) remetenteApelido = contatoMsg.apelido;
-      else if (data.usuario === auth.currentUser.email) remetenteApelido = apelidoUsuario;
-
-      let textoMsg = "";
-      if (data.respondeA) {
-        const apelidoResposta = await getApelido(data.respondeA.usuario);
-        textoMsg += `${apelidoResposta}: ${data.respondeA.texto}\n→ `;
-      }
-      textoMsg += data.texto;
-      msgEl.textContent = textoMsg;
-
-      // Três pontinhos
+      // Menu 3 pontinhos
       const menuDots = document.createElement("div");
+      menuDots.textContent = "⋮";
       menuDots.classList.add("menu-dots");
-      menuDots.innerHTML = "⋮";
 
       const menuOptions = document.createElement("div");
       menuOptions.classList.add("menu-options");
-      menuOptions.innerHTML = `
-        <div class="option" data-action="apagar">Apagar</div>
-        <div class="option" data-action="editar">Editar</div>
-        <div class="option" data-action="copiar">Copiar</div>
-      `;
-      menuDots.appendChild(menuOptions);
-      menuDots.addEventListener("click", (e) => {
-        e.stopPropagation();
-        menuOptions.style.display = menuOptions.style.display === "block" ? "none" : "block";
+      ["Apagar", "Editar", "Copiar"].forEach(op => {
+        const btn = document.createElement("div");
+        btn.textContent = op;
+        btn.classList.add("option");
+        btn.onclick = () => {
+          if (op === "Apagar") {
+            doc(db, "conversas", conversaId, "mensagens", docSnap.id)
+              .delete().catch(console.error);
+          } else if (op === "Editar") {
+            novaMensagem.value = data.texto;
+          } else if (op === "Copiar") {
+            navigator.clipboard.writeText(data.texto);
+          }
+        };
+        menuOptions.appendChild(btn);
       });
 
-      menuOptions.querySelectorAll(".option").forEach(opt => {
-        opt.addEventListener("click", async () => {
-          const action = opt.dataset.action;
-          if (action === "apagar") await deleteDoc(doc(db, "conversas", conversaIdAtual, "mensagens", id));
-          if (action === "editar") {
-            const novoTexto = prompt("Edite a mensagem:", data.texto);
-            if (novoTexto) await updateDoc(doc(db, "conversas", conversaIdAtual, "mensagens", id), { texto: novoTexto });
-          }
-          if (action === "copiar") navigator.clipboard.writeText(data.texto);
-          menuOptions.style.display = "none";
-        });
-      });
+      menuDots.onclick = () => {
+        menuOptions.style.display = menuOptions.style.display === "block" ? "none" : "block";
+      };
 
       msgEl.appendChild(menuDots);
-      chatBox.appendChild(msgEl);
-    }
+      msgEl.appendChild(menuOptions);
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+      mensagensDiv.appendChild(msgEl);
+    }
+    mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
   });
 }
 
-// Enviar mensagem
-btnSend.addEventListener("click", async () => {
-  const msg = inputMsg.value.trim();
-  if (!msg || !conversaIdAtual) return;
-
-  const mensagensRef = collection(db, "conversas", conversaIdAtual, "mensagens");
-  const dadosMsg = {
-    texto: msg,
-    usuario: auth.currentUser.email,
-    timestamp: serverTimestamp(),
-  };
-  if (respostaMsg) {
-    dadosMsg.respondeA = respostaMsg;
-    respostaMsg = null;
-  }
-
-  await addDoc(mensagensRef, dadosMsg);
-  inputMsg.value = "";
-});
-
-// Login
-loginBtn.addEventListener("click", async () => {
+// --- Eventos ---
+registerBtn.onclick = async () => {
+  const apelido = apelidoLogin.value.trim();
   const email = emailInput.value.trim();
-  const senha = passwordInput.value.trim();
-  const apelido = apelidoLoginInput.value.trim();
-
-  if (!email || !senha || !apelido) return alert("Preencha todos os campos.");
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
-    await salvarApelido(apelido);
-  } catch (err) {
-    alert("Erro no login: " + err.message);
-  }
-});
-
-// Registro
-registerBtn.addEventListener("click", async () => {
-  const email = emailInput.value.trim();
-  const senha = passwordInput.value.trim();
-  const apelido = apelidoLoginInput.value.trim();
-
-  if (!email || !senha || !apelido) return alert("Preencha todos os campos.");
+  const senha = passwordInput.value;
+  if (!apelido || !email || !senha) return alert("Preencha todos os campos.");
   try {
     await createUserWithEmailAndPassword(auth, email, senha);
-    await salvarApelido(apelido);
-  } catch (err) {
-    alert("Erro no registro: " + err.message);
-  }
-});
+    await setDoc(doc(db, "users", email), { nickname: apelido });
+    alert("Registrado com sucesso!");
+  } catch (e) { alert(e.message); }
+};
 
-// Logout
-logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
-});
+loginBtn.onclick = async () => {
+  const email = emailInput.value.trim();
+  const senha = passwordInput.value;
+  if (!email || !senha) return alert("Preencha todos os campos.");
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+  } catch (e) { alert(e.message); }
+};
 
-// Auth state
-onAuthStateChanged(auth, async (user) => {
+logoutBtn.onclick = () => signOut(auth);
+
+enviarBtn.onclick = async () => {
+  const texto = novaMensagem.value.trim();
+  if (!texto || !conversaIdAtual) return;
+  const mensagensRef = collection(db, "conversas", conversaIdAtual, "mensagens");
+  await addDoc(mensagensRef, {
+    texto,
+    usuario: auth.currentUser.email,
+    timestamp: serverTimestamp(),
+  });
+  novaMensagem.value = "";
+};
+
+// --- Auth state ---
+onAuthStateChanged(auth, user => {
   if (user) {
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-
-    await carregarApelidosCache();
     userApelidoDisplay.textContent = apelidosCache[user.email] || user.email;
     carregarContatos();
   } else {
