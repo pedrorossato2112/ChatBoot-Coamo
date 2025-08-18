@@ -1,51 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Suporte APPLOG</title>
-<link rel="stylesheet" href="suporte.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Suporte APPLOG</title>
+  <link rel="stylesheet" href="suporte.css">
 </head>
 <body>
-
-<h1>Chat Suporte APPLOG</h1>
-
-<div id="loginDiv">
-  <input type="text" id="apelido" placeholder="Seu apelido">
-  <input type="email" id="email" placeholder="Seu email">
-  <input type="password" id="password" placeholder="Senha">
-  <div class="buttons">
-    <button id="loginBtn">Entrar</button>
-    <button id="signupBtn">Cadastrar</button>
-  </div>
-</div>
-
-<div id="chatDiv" style="display:none; flex-direction: column;">
-  <p>Logado como: <span id="userApelidoSpan"></span> (<span id="userEmailSpan"></span>) 
-    <button id="logoutBtn">Sair</button>
-  </p>
-
-  <div id="friendSelect">
-    <select id="contatosSalvos" style="display:none;"></select>
-    <input type="email" id="friendEmail" placeholder="Email do contato">
-    <input type="text" id="friendApelido" placeholder="Apelido do contato">
-    <button id="startChatBtn">Abrir conversa</button>
+  <h1>Chat Suporte APPLOG</h1>
+  
+  <div id="loginDiv">
+    <input type="text" id="apelidoLogin" placeholder="Seu apelido">
+    <input type="email" id="email" placeholder="Seu email">
+    <input type="password" id="password" placeholder="Senha">
+    <div class="buttons">
+      <button onclick="login()">Entrar</button>
+      <button onclick="register()">Registrar</button>
+    </div>
   </div>
 
-  <div id="chat-box"></div>
-
-  <div id="respostaBox" style="display:none;"></div>
-
-  <div id="typingIndicator"></div>
-
-  <div id="input-container">
-    <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off">
-    <button id="btn-send">Enviar</button>
+  <div id="chatDiv" style="display: none;">
+    <div id="userApelido"></div>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Digite sua mensagem...">
+    <button onclick="sendMessage()">Enviar</button>
   </div>
-</div>
 
-<script type="module" src="suporte.js"></script>
+  <script type="module" src="suporte.js"></script>
 </body>
 </html>
-
-
