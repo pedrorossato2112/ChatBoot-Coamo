@@ -1,213 +1,191 @@
-/* Reset básico */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Corpo da página */
-body {
-  background: #f2f4f8;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* Título */
 h1 {
   text-align: center;
+  color: #008000; /* Verde */
   margin-bottom: 20px;
-  color: #4b6cb7;
-}
-
-/* Login */
-#loginDiv {
-  background: #fff;
-  padding: 20px 25px;
+  background: white;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 320px;
+  box-shadow: 0 4px 10px rgba(0, 128, 0, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 #loginDiv input {
   padding: 10px;
-  font-size: 14px;
+  font-size: 16px;
+  border: 2px solid #008000;
   border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-#loginDiv .buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-#loginDiv button {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background: #4b6cb7;
-  color: #fff;
-  transition: background 0.3s;
-}
-
-#loginDiv button:hover {
-  background: #3a53a0;
-}
-
-/* Chat */
-#chatDiv {
-  display: none;
-  flex-direction: column;
+  outline-offset: 2px;
   width: 100%;
-  max-width: 600px;
-  gap: 15px;
+  box-sizing: border-box;
 }
 
-/* Info do usuário */
-#chatDiv p {
-  font-size: 14px;
-  color: #333;
+#loginDiv input:focus {
+  border-color: #004d00; /* Verde escuro */
 }
 
-/* Seleção de amigo */
-#friendSelect {
+.buttons {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex: 1;
+  padding: 12px;
+  font-weight: 600;
+  background-color: #008000;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-#friendSelect input, #friendSelect select {
-  padding: 8px;
+.buttons button:hover {
+  background-color: #004d00;
+}
+
+/* Chat principal */
+#chatDiv {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0, 128, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  max-height: 720px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#chatDiv p {
+  font-size: 16px;
+  padding: 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 2px solid #008000;
+  outline-offset: 2px;
+  box-sizing: border-box;
+}
+
+#friendSelect select,
+#friendSelect input {
   flex: 1;
+  outline-offset: 2px;
+}
+
+#friendSelect select:focus,
+#friendSelect input:focus {
+  border-color: #004d00;
 }
 
 #friendSelect button {
-  padding: 8px 16px;
-  border-radius: 6px;
+  background-color: #008000;
   border: none;
-  background: #4b6cb7;
-  color: #fff;
+  color: white;
   cursor: pointer;
-  transition: background 0.3s;
 }
 
 #friendSelect button:hover {
-  background: #3a53a0;
+  background-color: #004d00;
 }
 
-/* Caixa de chat */
-#chat-box {
-  flex-grow: 1;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 6px;
-  background: #fafafa;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Mensagens */
-.msg {
-  padding: 8px 12px;
-  border-radius: 12px;
-  max-width: 70%;
-  word-wrap: break-word;
-  position: relative;
+/* Caixa de mensagens */
+.msg:hover {
+  background-color: #d0f0d0;
 }
 
 .msg.own {
+  background-color: #008000;
+  color: white;
   align-self: flex-end;
-  background: #4b6cb7;
-  color: #fff;
+  border-bottom-right-radius: 2px;
 }
 
 .msg.friend {
-  align-self: flex-start;
-  background: #e1eaff;
+  background-color: #d4f1d4;
   color: #333;
-}
-
-/* Status da mensagem */
-.status {
-  font-size: 10px;
-  color: #666;
-  position: absolute;
-  bottom: -15px;
-  right: 10px;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
 }
 
 /* Caixa de resposta */
 #respostaBox {
-  display: none;
-  border-left: 4px solid #4b6cb7;
-  background: #e1eaff;
-  padding: 6px 10px;
-  margin-top: 8px;
+  border-left: 4px solid #008000;
+  background: #d4f1d4;
+  padding: 6px 12px;
+  margin-bottom: 8px;
   border-radius: 4px;
-  font-style: italic;
-  position: relative;
 }
 
 #respostaBox button {
-  position: absolute;
-  top: 4px;
-  right: 6px;
   border: none;
-  background: transparent;
+  font-weight: 700;
+  font-size: 20px;
+  color: #008000;
   cursor: pointer;
-  font-size: 16px;
-  color: #333;
+  line-height: 1;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+#respostaBox button:hover {
+  color: #004d00;
 }
 
 /* Indicador digitando */
-#typingIndicator {
-  height: 20px;
-  margin-top: 5px;
-  font-style: italic;
-  color: #666;
+#input-msg:focus {
+  border-color: #008000;
 }
 
-/* Input de envio */
-#input-container {
-  display: flex;
-  gap: 0;
-}
-
-#input-container input {
-  flex-grow: 1;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 6px 0 0 6px;
-  border: 1px solid #ccc;
-  border-right: none;
-}
-
-#input-container button {
+#btn-send {
   padding: 0 20px;
   font-size: 16px;
   border-radius: 0 6px 6px 0;
-  border: 1px solid #4b6cb7;
-  background: #4b6cb7;
+  border: 1px solid #008000;
+  background: #008000;
   color: white;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.3s;
 }
 
-#input-container button:hover {
-  background: #3a53a0;
+#btn-send:hover:not(:disabled) {
+  background-color: #004d00;
+}
+
+#btn-send:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+#nicknameModal h3 {
+  margin-bottom: 15px;
+  color: #008000;
+}
+
+#nicknameModal input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  border: 2px solid #008000;
+  border-radius: 6px;
+  outline-offset: 2px;
+}
+
+#nicknameModal input:focus {
+  border-color: #004d00;
+}
+
+#nicknameModal button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #008000;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+
+#nicknameModal button:hover {
+  background-color: #004d00;
 }
