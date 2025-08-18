@@ -1,12 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, updateDoc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, updateDoc, getDoc, deleteDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// Config Firebase
+// ---------------- CONFIG FIREBASE ----------------
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -16,171 +16,247 @@ const firebaseConfig = {
   appId: "1:328474991416:web:cd61d9ac5377b6a4ab3fcd",
   measurementId: "G-4QH32PWFM4",
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Elementos
+// ---------------- ELEMENTOS ----------------
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
-const apelidoLogin = document.getElementById("apelidoLogin");
+const apelidoLoginInput = document.getElementById("apelidoLogin");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
 const registerBtn = document.getElementById("registerBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const userApelidoDisplay = document.getElementById("userApelidoDisplay");
-const contatosSalvos = document.getElementById("contatosSalvos");
-const mensagensDiv = document.getElementById("mensagens");
-const novaMensagem = document.getElementById("novaMensagem");
-const enviarBtn = document.getElementById("enviarBtn");
 
+const friendEmailInput = document.getElementById("friendEmail");
+const friendApelidoInput = document.getElementById("friendApelido");
+const startChatBtn = document.getElementById("startChatBtn");
+const contatosBox = document.getElementById("contatosBox");
+
+const inputMsg = document.getElementById("input-msg");
+const btnSend = document.getElementById("btn-send");
+const chatBox = document.getElementById("chat-box");
+const userApelidoDisplay = document.getElementById("userApelidoDisplay");
+const typingIndicator = document.getElementById("typingIndicator");
+const respostaBox = document.getElementById("respostaBox");
+const logoutBtn = document.getElementById("logoutBtn");
+
+const nicknameModal = document.getElementById("nicknameModal");
+const nicknameInput = document.getElementById("nicknameInput");
+const saveNicknameBtn = document.getElementById("saveNicknameBtn");
+
+// ---------------- VARIÁVEIS ----------------
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 let apelidosCache = {};
+let respostaMsg = null;
 
-// --- Funções ---
-function gerarIdConversa(email1, email2) {
-  return [email1, email2].sort().join("_");
+// ---------------- FUNÇÕES ----------------
+function gerarIdConversa(usuario1, usuario2){
+  return [usuario1, usuario2].sort().join("_");
 }
 
-function salvarContato(email, apelido) {
-  if (!email || !apelido) return;
+// ---------------- CONTATOS ----------------
+function salvarContato(email, apelido){
+  if(!email || !apelido) return;
   let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
   email = email.toLowerCase();
-  if (!contatos.some(c => c.email === email)) {
-    contatos.push({ email, apelido });
+  if(!contatos.some(c => c.email === email)){
+    contatos.push({email, apelido});
     localStorage.setItem("contatosChat", JSON.stringify(contatos));
+    carregarContatos();
   }
-  carregarContatos();
 }
 
-function carregarContatos() {
-  contatosSalvos.innerHTML = "";
+function carregarContatos(){
+  contatosBox.innerHTML = "";
   let contatos = JSON.parse(localStorage.getItem("contatosChat")) || [];
   contatos.forEach(c => {
     const div = document.createElement("div");
+    div.classList.add("contatoItem");
     div.textContent = c.apelido;
-    div.classList.add("contato-item");
-    div.onclick = () => abrirConversa(gerarIdConversa(auth.currentUser.email, c.email));
-    contatosSalvos.appendChild(div);
+    div.addEventListener("click", () => abrirConversa(gerarIdConversa(auth.currentUser.email, c.email)));
+    contatosBox.appendChild(div);
   });
 }
 
-async function getApelido(email) {
-  if (!email) return "Anônimo";
-  if (apelidosCache[email]) return apelidosCache[email];
-  try {
-    const userDocRef = doc(db, "users", email);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists() && userDocSnap.data().nickname) {
-      apelidosCache[email] = userDocSnap.data().nickname;
+// ---------------- APPELIDOS ----------------
+async function salvarApelido(apelido){
+  apelidosCache[auth.currentUser.email] = apelido;
+  localStorage.setItem("apelidosCache", JSON.stringify(apelidosCache));
+  const userRef = doc(db, "users", auth.currentUser.email);
+  await setDoc(userRef, {nickname: apelido}, {merge: true});
+}
+
+async function carregarApelidosCache(){
+  const cache = localStorage.getItem("apelidosCache");
+  apelidosCache = cache ? JSON.parse(cache) : {};
+}
+
+async function getApelido(email){
+  if(!email) return "Anônimo";
+  if(apelidosCache[email]) return apelidosCache[email];
+  try{
+    const userRef = doc(db, "users", email);
+    const userSnap = await getDoc(userRef);
+    if(userSnap.exists() && userSnap.data().nickname){
+      apelidosCache[email] = userSnap.data().nickname;
+      localStorage.setItem("apelidosCache", JSON.stringify(apelidosCache));
       return apelidosCache[email];
     }
-  } catch (error) {
-    console.error(error);
-  }
+  }catch(err){console.error(err);}
   return email;
 }
 
-async function abrirConversa(conversaId) {
-  if (unsubscribeMensagens) unsubscribeMensagens();
+// ---------------- CONVERSAS ----------------
+async function abrirConversa(conversaId){
   conversaIdAtual = conversaId;
+
+  if(unsubscribeMensagens) unsubscribeMensagens();
+
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
-
+  
   unsubscribeMensagens = onSnapshot(q, async snapshot => {
-    mensagensDiv.innerHTML = "";
-    for (const docSnap of snapshot.docs) {
+    chatBox.innerHTML = "";
+    for(const docSnap of snapshot.docs){
       const data = docSnap.data();
+      const id = docSnap.id;
+
       const msgEl = document.createElement("div");
       msgEl.classList.add("msg");
       msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
+      
+      const apelido = await getApelido(data.usuario);
       msgEl.textContent = data.texto;
 
-      // Menu 3 pontinhos
-      const menuDots = document.createElement("div");
-      menuDots.textContent = "⋮";
-      menuDots.classList.add("menu-dots");
-
-      const menuOptions = document.createElement("div");
-      menuOptions.classList.add("menu-options");
-      ["Apagar", "Editar", "Copiar"].forEach(op => {
-        const btn = document.createElement("div");
-        btn.textContent = op;
-        btn.classList.add("option");
-        btn.onclick = () => {
-          if (op === "Apagar") {
-            doc(db, "conversas", conversaId, "mensagens", docSnap.id)
-              .delete().catch(console.error);
-          } else if (op === "Editar") {
-            novaMensagem.value = data.texto;
-          } else if (op === "Copiar") {
-            navigator.clipboard.writeText(data.texto);
-          }
-        };
-        menuOptions.appendChild(btn);
+      // 3 pontinhos
+      const optionsBtn = document.createElement("span");
+      optionsBtn.textContent = "⋮";
+      optionsBtn.style.position = "absolute";
+      optionsBtn.style.right = "8px";
+      optionsBtn.style.top = "8px";
+      optionsBtn.style.cursor = "pointer";
+      optionsBtn.style.color = "#000";
+      optionsBtn.title = "Opções";
+      optionsBtn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        mostrarOpcoes(msgEl, docSnap);
       });
+      msgEl.appendChild(optionsBtn);
 
-      menuDots.onclick = () => {
-        menuOptions.style.display = menuOptions.style.display === "block" ? "none" : "block";
-      };
-
-      msgEl.appendChild(menuDots);
-      msgEl.appendChild(menuOptions);
-
-      mensagensDiv.appendChild(msgEl);
+      chatBox.appendChild(msgEl);
     }
-    mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
 
-// --- Eventos ---
-registerBtn.onclick = async () => {
-  const apelido = apelidoLogin.value.trim();
-  const email = emailInput.value.trim();
-  const senha = passwordInput.value;
-  if (!apelido || !email || !senha) return alert("Preencha todos os campos.");
-  try {
-    await createUserWithEmailAndPassword(auth, email, senha);
-    await setDoc(doc(db, "users", email), { nickname: apelido });
-    alert("Registrado com sucesso!");
-  } catch (e) { alert(e.message); }
-};
+function mostrarOpcoes(msgEl, docSnap){
+  const menu = document.createElement("div");
+  menu.style.position = "absolute";
+  menu.style.background = "#fff";
+  menu.style.border = "1px solid #000";
+  menu.style.padding = "5px";
+  menu.style.display = "flex";
+  menu.style.flexDirection = "column";
 
-loginBtn.onclick = async () => {
-  const email = emailInput.value.trim();
-  const senha = passwordInput.value;
-  if (!email || !senha) return alert("Preencha todos os campos.");
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
-  } catch (e) { alert(e.message); }
-};
+  const apagar = document.createElement("div");
+  apagar.textContent = "Apagar";
+  apagar.style.cursor = "pointer";
+  apagar.style.color = "black";
+  apagar.onclick = async () => {
+    await deleteDoc(docSnap.ref);
+    menu.remove();
+  };
 
-logoutBtn.onclick = () => signOut(auth);
+  const copiar = document.createElement("div");
+  copiar.textContent = "Copiar";
+  copiar.style.cursor = "pointer";
+  copiar.style.color = "black";
+  copiar.onclick = () => {
+    navigator.clipboard.writeText(docSnap.data().texto);
+    menu.remove();
+  };
 
-enviarBtn.onclick = async () => {
-  const texto = novaMensagem.value.trim();
-  if (!texto || !conversaIdAtual) return;
-  const mensagensRef = collection(db, "conversas", conversaIdAtual, "mensagens");
-  await addDoc(mensagensRef, {
+  menu.appendChild(apagar);
+  menu.appendChild(copiar);
+
+  msgEl.appendChild(menu);
+}
+
+// ---------------- ENVIO ----------------
+btnSend.addEventListener("click", async ()=>{
+  const texto = inputMsg.value.trim();
+  if(!texto || !conversaIdAtual) return;
+  const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
+  await addDoc(ref, {
     texto,
     usuario: auth.currentUser.email,
-    timestamp: serverTimestamp(),
+    timestamp: serverTimestamp()
   });
-  novaMensagem.value = "";
-};
+  inputMsg.value = "";
+});
 
-// --- Auth state ---
-onAuthStateChanged(auth, user => {
-  if (user) {
+// ---------------- LOGIN / REGISTRO ----------------
+loginBtn.addEventListener("click", async ()=>{
+  try{
+    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+  }catch(err){
+    alert("Erro no login: "+err.message);
+  }
+});
+
+registerBtn.addEventListener("click", async ()=>{
+  try{
+    await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    alert("Usuário registrado com sucesso!");
+  }catch(err){
+    alert("Erro no registro: "+err.message);
+  }
+});
+
+// ---------------- AUTENTICAÇÃO ----------------
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    userApelidoDisplay.textContent = apelidosCache[user.email] || user.email;
+
+    await carregarApelidosCache();
+    const apelido = apelidosCache[user.email] || "";
+    if(!apelido){
+      nicknameModal.style.display = "flex";
+    }else{
+      userApelidoDisplay.textContent = apelido;
+    }
     carregarContatos();
-  } else {
+  }else{
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";
   }
+});
+
+// ---------------- SALVAR APELIDO ----------------
+saveNicknameBtn.addEventListener("click", async ()=>{
+  const nick = nicknameInput.value.trim();
+  if(!nick) return alert("Digite um apelido!");
+  await salvarApelido(nick);
+  userApelidoDisplay.textContent = nick;
+  nicknameModal.style.display = "none";
+});
+
+// ---------------- INICIAR CONVERSA ----------------
+startChatBtn.addEventListener("click", ()=>{
+  const email = friendEmailInput.value.trim().toLowerCase();
+  const apelido = friendApelidoInput.value.trim();
+  if(!email || !apelido) return alert("Preencha email e apelido do amigo!");
+  salvarContato(email, apelido);
+  abrirConversa(gerarIdConversa(auth.currentUser.email, email));
+  friendEmailInput.value = "";
+  friendApelidoInput.value = "";
+});
+
+// ---------------- LOGOUT ----------------
+logoutBtn.addEventListener("click", async ()=>{
+  await signOut(auth);
 });
