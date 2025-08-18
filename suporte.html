@@ -24,24 +24,20 @@
   <div id="chatDiv" style="display:none; flex-direction: row; gap: 20px;">
 
     <!-- LISTA DE CHAMADOS (para atendentes) -->
-    <div id="chamadosListContainer" style="display:none; width: 250px; border: 1px solid #ccc; padding: 10px; border-radius: 6px; background: #f7f7f7; height: 500px; overflow-y: auto;">
+    <div id="chamadosListContainer">
       <h3>Chamados Abertos</h3>
-      <ul id="chamadosList" style="list-style:none; padding-left:0; margin:0;"></ul>
+      <ul id="chamadosList"></ul>
     </div>
 
     <!-- CHAT BOX -->
-    <div style="flex-grow: 1; display:flex; flex-direction: column; max-width: 700px;">
+    <div id="chatBoxContainer">
       <p>Logado como: <span id="userEmail"></span> <button id="logoutBtn">Sair</button></p>
 
-      <div id="chat-box" style="flex-grow: 1; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 6px; background: #fafafa; max-height: 400px;"></div>
+      <div id="chat-box"></div>
 
-      <div id="respostaBox" style="display:none; border-left: 4px solid #4b6cb7; background:#e1eaff; padding: 6px 10px; margin-top: 8px; border-radius: 4px; font-style: italic; position: relative;"></div>
-
-      <div id="typingIndicator" style="height: 20px; margin-top: 5px; font-style: italic; color: #666;"></div>
-
-      <div id="input-container" style="display: flex; margin-top: 10px;">
-        <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off" style="flex-grow:1; padding: 10px; font-size: 16px; border-radius: 6px 0 0 6px; border: 1px solid #ccc; border-right: none;" />
-        <button id="btn-send" style="padding: 0 20px; font-size: 16px; border-radius: 0 6px 6px 0; border: 1px solid #4b6cb7; background: #4b6cb7; color: white; cursor: pointer;">Enviar</button>
+      <div id="input-container">
+        <input type="text" id="input-msg" placeholder="Digite sua mensagem..." autocomplete="off" />
+        <button id="btn-send">Enviar</button>
       </div>
     </div>
 
