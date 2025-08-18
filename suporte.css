@@ -1,113 +1,73 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f0f0f0;
+  background: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
   padding: 20px;
 }
 
 h1 {
-  text-align: center;
-  color: #008000;
   margin-bottom: 20px;
+  color: #333;
 }
 
 #loginDiv, #chatDiv {
   background: white;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,128,0,0.3);
-  max-width: 400px;
-  margin: 0 auto 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-#loginDiv input, #friendSelect input, #friendSelect select, #input-msg {
-  padding: 10px;
-  font-size: 16px;
-  border: 2px solid #008000;
-  border-radius: 6px;
-  outline-offset: 2px;
+#loginDiv input, #chatDiv input {
   width: 100%;
-  box-sizing: border-box;
-}
-
-#loginDiv input:focus, #friendSelect input:focus, #friendSelect select:focus, #input-msg:focus {
-  border-color: #004d00;
-}
-
-.buttons button, #friendSelect button, #btn-send {
   padding: 10px;
-  font-weight: 600;
-  background-color: #008000;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 5px;
-}
-
-.buttons button:hover, #friendSelect button:hover, #btn-send:hover {
-  background-color: #004d00;
-}
-
-#chat-box {
-  flex-grow: 1;
-  overflow-y: auto;
-  border: 1px solid #008000;
-  border-radius: 6px;
-  padding: 10px;
-  max-height: 400px;
-  background: #fafafa;
-}
-
-.msg {
-  padding: 6px 10px;
   margin: 5px 0;
-  border-radius: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-.msg.own {
-  background-color: #008000;
-  color: white;
-  align-self: flex-end;
-}
-
-.msg.friend {
-  background-color: #d4f1d4;
-  color: #333;
-  align-self: flex-start;
-}
-
-#respostaBox {
-  border-left: 4px solid #008000;
-  background:#d4f1d4;
-  padding: 6px 12px;
-  margin-top: 8px;
-  border-radius: 4px;
-  font-style: italic;
-  position: relative;
-}
-
-#typingIndicator {
-  height: 20px;
-  font-style: italic;
-  color: #666;
-}
-
-#input-container {
+.buttons {
   display: flex;
-  gap: 5px;
+  justify-content: space-between;
+}
+
+button {
+  padding: 10px;
   margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #5a67d8;
+  color: white;
+  cursor: pointer;
+  flex: 1;
+  margin-right: 5px;
 }
 
-#input-msg {
-  flex-grow: 1;
-  border-radius: 6px 0 0 6px;
-  border: 1px solid #008000;
+button:last-child {
+  margin-right: 0;
 }
 
-#btn-send {
-  border-radius: 0 6px 6px 0;
-  border: 1px solid #008000;
+button:hover {
+  background: #434190;
+}
+
+#userApelido {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #444;
+}
+
+#messages {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fafafa;
 }
