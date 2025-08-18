@@ -9,6 +9,7 @@
 <body>
   <h1>Chat Suporte APPLOG</h1>
 
+  <!-- LOGIN -->
   <div id="loginDiv">
     <input type="text" id="apelidoLogin" placeholder="Seu apelido">
     <input type="email" id="email" placeholder="Seu email">
@@ -19,17 +20,22 @@
     </div>
   </div>
 
-  <div id="chatDiv" style="display: none;">
+  <!-- CHAT -->
+  <div id="chatDiv" style="display:none;">
     <div id="userApelidoDisplay"></div>
+    <select id="contatosSalvos" style="display:none;"></select>
+    <div id="typingIndicator"></div>
     <div id="chat-box"></div>
+    <div id="respostaBox" style="display:none;"></div>
     <input type="text" id="input-msg" placeholder="Digite sua mensagem...">
     <button id="btn-send">Enviar</button>
     <button id="logoutBtn">Sair</button>
   </div>
 
+  <!-- MODAL APELIDO -->
   <div id="nicknameModal" style="display:none;">
     <input type="text" id="nicknameInput" placeholder="Digite seu apelido">
-    <button id="saveNicknameBtn">Salvar</button>
+    <button id="saveNicknameBtn">Salvar Apelido</button>
   </div>
 
   <script type="module" src="suporte.js"></script>
