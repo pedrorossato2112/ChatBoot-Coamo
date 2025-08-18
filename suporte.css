@@ -1,149 +1,155 @@
-/* BODY */
+/* Reset e corpo */
 body {
   font-family: Arial, sans-serif;
-  background: #e0f2e9; /* verde claro de fundo */
+  background: #f0f4f0; /* verde claro suave */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Título */
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Containers */
+#loginDiv, #chatDiv {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 350px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  margin: 0;
-  padding: 20px;
 }
 
-/* TITULO */
-h1 {
-  margin-bottom: 30px;
-  color: #333;
-  text-align: center;
-}
-
-/* LOGIN E CHAT */
-#loginDiv, #chatDiv {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  width: 350px;
-  max-width: 90%;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* INPUTS */
+/* Inputs login e chat */
 #loginDiv input, #chatDiv input {
-  width: 100%;
+  width: 90%;
   padding: 12px;
-  margin: 5px 0;
-  border: 1px solid #b2dfdb;
+  margin: 10px 0;
+  border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 14px;
-  outline: none;
 }
 
-#loginDiv input:focus, #chatDiv input:focus {
-  border-color: #4caf50;
-}
-
-/* BOTÕES */
+/* Botões */
 button {
   padding: 12px;
+  margin-top: 10px;
   border: none;
   border-radius: 8px;
+  background: #4caf50; /* verde escuro */
+  color: white;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
-  transition: 0.3s;
+  transition: background 0.3s;
 }
 
 button:hover {
-  opacity: 0.9;
+  background: #388e3c; /* verde mais escuro */
 }
 
-/* BOTOES LOGIN */
-.buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-#loginBtn { background-color: #4caf50; color: white; flex: 1; }
-#registerBtn { background-color: #388e3c; color: white; flex: 1; }
-
-/* MENSAGENS CHAT */
-#chat-box {
+/* Área de mensagens */
+#mensagens {
+  width: 100%;
   height: 350px;
   overflow-y: auto;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 10px;
+  padding: 15px;
   margin-bottom: 10px;
-  background: #a8e6cf; /* verde claro */
+  background: #e6f2e6; /* verde claro */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* MENSAGENS */
+/* Mensagens individuais */
 .msg {
-  position: relative;
-  padding: 8px 12px;
-  margin: 6px 0;
+  padding: 10px 12px;
   border-radius: 10px;
   max-width: 80%;
+  position: relative;
   word-wrap: break-word;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.msg.own {
-  background-color: #66bb6a; /* verde mais escuro */
+/* Mensagens do usuário */
+.own {
+  background: #4caf50; /* verde escuro */
   color: white;
-  margin-left: auto;
+  align-self: flex-end;
 }
 
-.msg.friend {
-  background-color: #b2dfdb; /* verde claro */
-  color: #000;
-  margin-right: auto;
+/* Mensagens do amigo */
+.friend {
+  background: #c8e6c9; /* verde claro mais intenso */
+  color: black;
+  align-self: flex-start;
 }
 
-/* STATUS */
+/* Status mensagem (enviado/visto) */
 .status {
   font-size: 10px;
-  color: #fff;
-  margin-left: 5px;
+  color: #333;
+  margin-top: 3px;
+  text-align: right;
 }
 
-/* MENU 3 PONTOS */
-.msg-options {
-  cursor: pointer;
-  margin-left: 10px;
-  font-weight: bold;
-  color: #000; /* visível */
-}
-
-.msg-options-menu {
+/* Menu de 3 pontinhos */
+.menu-msg {
   position: absolute;
-  top: 25px; /* afasta da mensagem */
-  right: 0;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 5px;
+}
+
+.menu-opcoes {
   display: none;
-  background: #000; /* preto */
+  position: absolute;
+  top: 20px;
+  right: 5px;
+  background: #fff;
+  border: 1px solid #333;
   border-radius: 5px;
   overflow: hidden;
   z-index: 10;
 }
 
-.msg-options-menu button {
+.menu-opcoes button {
   display: block;
   width: 100%;
-  padding: 8px 12px;
-  background: #000;
-  color: #fff;
-  border: none;
+  padding: 5px 10px;
   text-align: left;
+  background: #fff;
+  color: #000;
+  border: none;
   cursor: pointer;
 }
 
-.msg-options-menu button:hover {
-  background: #333;
+.menu-opcoes button:hover {
+  background: #ccc;
+}
+
+/* Indicador de digitando */
+#typingIndicator {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+/* Apelido do usuário */
+#userApelidoDisplay {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
 }
