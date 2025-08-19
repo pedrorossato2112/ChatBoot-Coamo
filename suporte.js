@@ -6,7 +6,6 @@ import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// ---------------- CONFIG FIREBASE ----------------
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -19,7 +18,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------------- ELEMENTOS ----------------
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const emailInput = document.getElementById("email");
@@ -34,7 +32,6 @@ const btnSend = document.getElementById("btn-send");
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 
-// ---------------- FUNÇÕES ----------------
 function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
@@ -78,7 +75,6 @@ function atualizarClientes(){
   });
 }
 
-// ---------------- ENVIO ----------------
 btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -90,7 +86,6 @@ btnSend.addEventListener("click", async () => {
   inputMsg.value = "";
 });
 
-// ---------------- LOGIN ----------------
 loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
@@ -99,12 +94,10 @@ loginBtn.addEventListener("click", async ()=>{
   }
 });
 
-// ---------------- LOGOUT ----------------
 logoutBtn.addEventListener("click", async ()=>{
   await signOut(auth);
 });
 
-// ---------------- AUTENTICAÇÃO ----------------
 onAuthStateChanged(auth, user=>{
   if(user){
     loginDiv.style.display = "none";
