@@ -19,7 +19,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------------- CONSTANTES ----------------
 const ATENDENTE_EMAIL = "rossato.pedrinho@gmail.com";
 
 // ---------------- ELEMENTOS ----------------
@@ -76,7 +75,7 @@ btnSend.addEventListener("click", async () => {
 });
 
 // ---------------- LOGIN ----------------
-loginBtn.addEventListener("click", async ()=>{
+loginBtn.addEventListener("click", async () => {
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
   }catch(err){
@@ -85,22 +84,15 @@ loginBtn.addEventListener("click", async ()=>{
 });
 
 // ---------------- REGISTRO ----------------
-registerBtn.addEventListener("click", async ()=>{
+registerBtn.addEventListener("click", async () => {
   try{
     const cred = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-
-    // Cria usuário na coleção users como "chamado"
     await setDoc(doc(db, "users", cred.user.email), {
-      tipo: "chamado",
+      tipo: "cliente",
       email: cred.user.email,
       nickname: cred.user.email
     });
-
-    // Abre conversa com suporte automaticamente
-    const conversaId = gerarIdConversa(cred.user.email, ATENDENTE_EMAIL);
-    await setDoc(doc(db, "conversas", conversaId), {}); // Garante que a conversa exista
-    abrirConversa(conversaId);
-
+    abrirConversa(gerarIdConversa(cred.user.email, ATENDENTE_EMAIL));
     alert("Cadastro realizado com sucesso!");
   }catch(err){
     alert("Erro no registro: " + err.message);
@@ -108,12 +100,12 @@ registerBtn.addEventListener("click", async ()=>{
 });
 
 // ---------------- LOGOUT ----------------
-logoutBtn.addEventListener("click", async ()=>{
+logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
 });
 
 // ---------------- AUTENTICAÇÃO ----------------
-onAuthStateChanged(auth, user=>{
+onAuthStateChanged(auth, user => {
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
