@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const ATENDENTE_EMAIL = "rossato.pedrinho@gmail.com";
+const SUPORTE_EMAIL = "rossato.pedrinho@gmail.com";
 
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
@@ -59,7 +59,7 @@ async function abrirConversa(conversaId){
   });
 }
 
-// ENVIO
+// ENVIO DE MENSAGEM
 btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -87,9 +87,9 @@ registerBtn.addEventListener("click", async ()=>{
     await setDoc(doc(db, "users", cred.user.email), {
       tipo: "chamado",
       email: cred.user.email,
-      nickname: emailInput.value.split("@")[0]
+      nickname: cred.user.email
     });
-    abrirConversa(gerarIdConversa(cred.user.email, ATENDENTE_EMAIL));
+    abrirConversa(gerarIdConversa(cred.user.email, SUPORTE_EMAIL));
     alert("Cadastro realizado com sucesso!");
   }catch(err){
     alert("Erro no registro: " + err.message);
@@ -102,11 +102,11 @@ logoutBtn.addEventListener("click", async ()=>{
 });
 
 // AUTENTICAÇÃO
-onAuthStateChanged(auth, user=>{
+onAuthStateChanged(auth, async user=>{
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    abrirConversa(gerarIdConversa(user.email, ATENDENTE_EMAIL));
+    abrirConversa(gerarIdConversa(user.email, SUPORTE_EMAIL));
   }else{
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";
