@@ -125,7 +125,7 @@ function sendMessage() {
   input.value = "";
 }
 document.getElementById("btnAjuda").addEventListener("click", function() {
-  window.location.href = "suporte.html";
+  window.location.href = "login.html";
 });
 
 
