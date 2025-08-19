@@ -25,24 +25,23 @@ body {
 }
 
 #loginDiv input {
-  width: 80%;
+  width: 100%;
   padding: 10px;
   margin: 8px 0;
   border: 1px solid #ccc;
   border-radius: 6px;
-  text-align: center; 
 }
 
-.buttons {
+#loginDiv .buttons {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-top: 15px;
-  width: 80%; 
+  width: 100%;
+  margin-top: 10px;
 }
 
-button {
+#loginDiv button {
   flex: 1;
+  margin: 0 5px;
   padding: 10px;
   border: none;
   border-radius: 6px;
@@ -51,15 +50,12 @@ button {
   color: #fff;
 }
 
-button:last-child {
-  margin-right: 0;
-}
-
 #loginBtn { background: #4caf50; }
 #registerBtn { background: #81c784; }
 
 #loginBtn:hover { background: #388e3c; }
 #registerBtn:hover { background: #66bb6a; }
+
 
 /* ---------------- CHAT ---------------- */
 #chatDiv {

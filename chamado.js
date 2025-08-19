@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const ATENDENTE_EMAIL = "seuemail@dominio.com";
+const ATENDENTE_EMAIL = "rossato.pedrinho@gmail.com";
 
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
@@ -89,7 +89,7 @@ registerBtn.addEventListener("click", async ()=>{
       email: cred.user.email,
       nickname: cred.user.email
     });
-    abrirConversa(gerarIdConversa(cred.user.email, "rossato.pedrinho@gmail.com"));
+    abrirConversa(gerarIdConversa(cred.user.email, ATENDENTE_EMAIL));
     alert("Cadastro realizado com sucesso!");
   }catch(err){
     alert("Erro no registro: " + err.message);
@@ -106,7 +106,7 @@ onAuthStateChanged(auth, user=>{
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    abrirConversa(gerarIdConversa(user.email, "rossato.pedrinho@gmail.com"));
+    abrirConversa(gerarIdConversa(user.email, ATENDENTE_EMAIL));
   }else{
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";
