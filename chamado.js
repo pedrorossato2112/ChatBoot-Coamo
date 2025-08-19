@@ -6,7 +6,6 @@ import {
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// ---------------- CONFIG FIREBASE ----------------
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -21,7 +20,6 @@ const auth = getAuth(app);
 
 const ATENDENTE_EMAIL = "rossato.pedrinho@gmail.com";
 
-// ---------------- ELEMENTOS ----------------
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const emailInput = document.getElementById("email");
@@ -36,7 +34,6 @@ const logoutBtn = document.getElementById("logoutBtn");
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 
-// ---------------- FUNÇÕES ----------------
 function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
@@ -62,7 +59,7 @@ async function abrirConversa(conversaId){
   });
 }
 
-// ---------------- ENVIO DE MENSAGEM ----------------
+// ENVIO
 btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -74,8 +71,8 @@ btnSend.addEventListener("click", async () => {
   inputMsg.value = "";
 });
 
-// ---------------- LOGIN ----------------
-loginBtn.addEventListener("click", async () => {
+// LOGIN
+loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
   }catch(err){
@@ -83,14 +80,14 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
-// ---------------- REGISTRO ----------------
-registerBtn.addEventListener("click", async () => {
+// REGISTRO
+registerBtn.addEventListener("click", async ()=>{
   try{
     const cred = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
     await setDoc(doc(db, "users", cred.user.email), {
-      tipo: "cliente",
+      tipo: "chamado",
       email: cred.user.email,
-      nickname: cred.user.email
+      nickname: emailInput.value.split("@")[0]
     });
     abrirConversa(gerarIdConversa(cred.user.email, ATENDENTE_EMAIL));
     alert("Cadastro realizado com sucesso!");
@@ -99,13 +96,13 @@ registerBtn.addEventListener("click", async () => {
   }
 });
 
-// ---------------- LOGOUT ----------------
-logoutBtn.addEventListener("click", async () => {
+// LOGOUT
+logoutBtn.addEventListener("click", async ()=>{
   await signOut(auth);
 });
 
-// ---------------- AUTENTICAÇÃO ----------------
-onAuthStateChanged(auth, user => {
+// AUTENTICAÇÃO
+onAuthStateChanged(auth, user=>{
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
