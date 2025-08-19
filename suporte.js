@@ -1,12 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-  getFirestore, collection, query, onSnapshot, orderBy, addDoc, serverTimestamp, doc, getDoc 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { 
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// FIREBASE
+// CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -26,7 +22,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const contatosBox = document.getElementById("contatosBox");
+const chamadosBox = document.getElementById("chamadosBox");
 const chatBox = document.getElementById("chat-box");
 const inputMsg = document.getElementById("input-msg");
 const btnSend = document.getElementById("btn-send");
@@ -38,7 +34,6 @@ function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
 
-// ABRIR CONVERSA
 async function abrirConversa(conversaId){
   conversaIdAtual = conversaId;
   if(unsubscribeMensagens) unsubscribeMensagens();
@@ -46,9 +41,9 @@ async function abrirConversa(conversaId){
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, snapshot=>{
+  unsubscribeMensagens = onSnapshot(q, snapshot => {
     chatBox.innerHTML = "";
-    snapshot.docs.forEach(docSnap=>{
+    snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
       const msgEl = document.createElement("div");
       msgEl.classList.add("msg");
@@ -60,28 +55,39 @@ async function abrirConversa(conversaId){
   });
 }
 
-// ATUALIZAR LISTA DE CHAMADOS
-function atualizarChamados(){
+async function atualizarChamados(){
   const chamadosRef = collection(db, "users");
-  onSnapshot(chamadosRef, snapshot=>{
-    contatosBox.innerHTML = "";
-    snapshot.docs.forEach(docSnap=>{
+  onSnapshot(chamadosRef, snapshot => {
+    chamadosBox.innerHTML = "";
+    snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
       if(data.tipo === "chamado"){
         const div = document.createElement("div");
         div.classList.add("contatoItem");
         div.textContent = data.nickname || data.email;
-        div.addEventListener("click", ()=>{
-          abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id));
-        });
-        contatosBox.appendChild(div);
+        div.addEventListener("click", () => abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id)));
+        chamadosBox.appendChild(div);
       }
     });
   });
 }
 
-// ENVIO DE MENSAGEM
-btnSend.addEventListener("click", async ()=>{
+// LOGIN
+loginBtn.addEventListener("click", async () => {
+  try{
+    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+  } catch(err){
+    alert("Erro no login: " + err.message);
+  }
+});
+
+// LOGOUT
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+});
+
+// ENVIO MENSAGEM
+btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
   await addDoc(ref, {
@@ -92,27 +98,19 @@ btnSend.addEventListener("click", async ()=>{
   inputMsg.value = "";
 });
 
-// LOGIN
-loginBtn.addEventListener("click", async ()=>{
-  try{
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-  }catch(err){
-    alert("Erro no login: "+err.message);
-  }
-});
-
-// LOGOUT
-logoutBtn.addEventListener("click", async ()=>{
-  await signOut(auth);
-});
-
 // AUTENTICAÇÃO
-onAuthStateChanged(auth, async user=>{
+onAuthStateChanged(auth, async user => {
   if(user){
-    loginDiv.style.display = "none";
-    chatDiv.style.display = "flex";
-    atualizarChamados();
-  }else{
+    const userDoc = await getDoc(doc(db, "users", user.email));
+    if(userDoc.exists() && userDoc.data().tipo === "suporte"){
+      loginDiv.style.display = "none";
+      chatDiv.style.display = "flex";
+      atualizarChamados();
+    } else {
+      alert("Você não tem permissão para acessar o suporte.");
+      await signOut(auth);
+    }
+  } else {
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";
   }
