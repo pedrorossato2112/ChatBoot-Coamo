@@ -4,24 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Suporte</title>
-  <link rel="stylesheet" href="suporte.css">
+  <link rel="stylesheet" href="chat.css">
 </head>
 <body>
+
+  <!-- LOGIN -->
+  <div id="loginDiv">
+    <h1>Login Suporte</h1>
+    <input type="email" id="email" placeholder="Seu email">
+    <input type="password" id="password" placeholder="Senha">
+    <div class="buttons">
+      <button id="loginBtn">Entrar</button>
+    </div>
+  </div>
+
+  <!-- CHAT ATENDENTE -->
   <div id="chatDiv">
+    <!-- Sidebar clientes -->
     <div class="sidebar">
       <h2>Clientes</h2>
       <div id="contatosBox"></div>
     </div>
+
+    <!-- Área de mensagens -->
     <div class="mainChat">
-      <div id="userApelidoDisplay"></div>
       <div id="chat-box"></div>
       <div class="inputArea">
         <input type="text" id="input-msg" placeholder="Digite sua mensagem...">
         <button id="btn-send">Enviar</button>
       </div>
-      <button id="logoutBtn">Sair</button>
+      <button id="logoutBtn" class="logoutBtn">Sair</button>
     </div>
   </div>
+
   <script type="module" src="suporte.js"></script>
 </body>
 </html>

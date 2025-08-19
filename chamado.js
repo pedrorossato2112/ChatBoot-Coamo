@@ -1,12 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// ---------------- CONFIG FIREBASE ----------------
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -19,22 +18,22 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------------- ELEMENTOS ----------------
+const ATENDENTE_EMAIL = "seuemail@dominio.com";
+
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const contatosBox = document.getElementById("contatosBox");
+const registerBtn = document.getElementById("registerBtn");
 const chatBox = document.getElementById("chat-box");
 const inputMsg = document.getElementById("input-msg");
 const btnSend = document.getElementById("btn-send");
+const logoutBtn = document.getElementById("logoutBtn");
 
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 
-// ---------------- FUNÇÕES ----------------
 function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
@@ -60,25 +59,7 @@ async function abrirConversa(conversaId){
   });
 }
 
-// Atualizar lista de clientes (chamados)
-function atualizarClientes(){
-  const clientesRef = collection(db, "users");
-  onSnapshot(clientesRef, snapshot => {
-    contatosBox.innerHTML = "";
-    snapshot.docs.forEach(docSnap => {
-      const data = docSnap.data();
-      if(data.tipo === "chamado"){ // só clientes
-        const div = document.createElement("div");
-        div.classList.add("contatoItem");
-        div.textContent = data.nickname || data.email;
-        div.addEventListener("click", () => abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id)));
-        contatosBox.appendChild(div);
-      }
-    });
-  });
-}
-
-// ---------------- ENVIO ----------------
+// ENVIO
 btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -90,7 +71,7 @@ btnSend.addEventListener("click", async () => {
   inputMsg.value = "";
 });
 
-// ---------------- LOGIN ----------------
+// LOGIN
 loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
@@ -99,17 +80,33 @@ loginBtn.addEventListener("click", async ()=>{
   }
 });
 
-// ---------------- LOGOUT ----------------
+// REGISTRO
+registerBtn.addEventListener("click", async ()=>{
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    await setDoc(doc(db, "users", cred.user.email), {
+      tipo: "chamado",
+      email: cred.user.email,
+      nickname: cred.user.email
+    });
+    abrirConversa(gerarIdConversa(cred.user.email, "rossato.pedrinho@gmail.com"));
+    alert("Cadastro realizado com sucesso!");
+  }catch(err){
+    alert("Erro no registro: " + err.message);
+  }
+});
+
+// LOGOUT
 logoutBtn.addEventListener("click", async ()=>{
   await signOut(auth);
 });
 
-// ---------------- AUTENTICAÇÃO ----------------
+// AUTENTICAÇÃO
 onAuthStateChanged(auth, user=>{
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    atualizarClientes();
+    abrirConversa(gerarIdConversa(user.email, "rossato.pedrinho@gmail.com"));
   }else{
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";

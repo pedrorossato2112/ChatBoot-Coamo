@@ -1,0 +1,236 @@
+/* ---------------- BODY ---------------- */
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---------------- LOGIN ---------------- */
+#loginDiv {
+  background: #fff;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+#loginDiv h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+#loginDiv input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #fff;
+  transition: 0.2s;
+}
+
+button:last-child {
+  margin-right: 0;
+}
+
+#loginBtn { background: #4caf50; }
+#registerBtn { background: #81c784; }
+
+#loginBtn:hover { background: #388e3c; }
+#registerBtn:hover { background: #66bb6a; }
+
+/* ---------------- CHAT ---------------- */
+#chatDiv {
+  display: none;
+  width: 95%;
+  max-width: 1000px;
+  height: 80vh;
+  display: flex;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+/* Sidebar clientes - só aparece para suporte */
+.sidebar {
+  width: 220px;
+  background: #e0f2f1;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  text-align: center;
+  color: #00796b;
+}
+
+#contatosBox {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #b2dfdb;
+  border-radius: 6px;
+  background: #f1f8f7;
+  padding: 5px;
+}
+
+.contatoItem {
+  padding: 8px;
+  margin: 5px 0;
+  background: #b2dfdb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.contatoItem:hover {
+  background: #80cbc4;
+}
+
+/* Área principal do chat */
+.mainChat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  position: relative;
+}
+
+/* Mensagens */
+#chat-box {
+  flex: 1;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.msg {
+  padding: 10px 14px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+  max-width: 70%;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.msg.own { background: #4caf50; color: #fff; align-self: flex-end; }
+.msg.friend { background: #c8e6c9; color: #000; align-self: flex-start; }
+
+/* Input de mensagem */
+.inputArea {
+  display: flex;
+}
+
+.inputArea input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px 0 0 6px;
+  border: 1px solid #ccc;
+}
+
+.inputArea button {
+  border-radius: 0 6px 6px 0;
+  border: none;
+  background: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.inputArea button:hover { background: #388e3c; }
+
+/* Botão logout */
+.logoutBtn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: #e53935;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logoutBtn:hover { background: #c62828; }
+
+/* ---------------- MODAL NICKNAME ---------------- */
+#nicknameModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* ---------------- RESPONSIVO ---------------- */
+@media (max-width: 768px) {
+  #chatDiv {
+    flex-direction: column;
+    height: 90vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 150px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .contatoItem {
+    flex: 0 0 auto;
+    margin: 0 5px;
+  }
+
+  .mainChat {
+    flex: 1;
+  }
+
+  #chat-box {
+    height: 60vh;
+  }
+}
