@@ -60,29 +60,24 @@ async function abrirConversa(conversaId){
   });
 }
 
-// ---------------- ATUALIZA LISTA DE CLIENTES ----------------
 function atualizarClientes(){
   const clientesRef = collection(db, "users");
   onSnapshot(clientesRef, snapshot => {
     contatosBox.innerHTML = "";
     snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
-      if(data.tipo === "chamado"){ // só clientes
+      if(data.tipo === "cliente"){ // só clientes
         const div = document.createElement("div");
         div.classList.add("contatoItem");
         div.textContent = data.nickname || data.email;
-        div.addEventListener("click", async () => {
-          const conversaId = gerarIdConversa(auth.currentUser.email, docSnap.id);
-          await setDoc(doc(db, "conversas", conversaId), {}); // Garante que a conversa exista
-          abrirConversa(conversaId);
-        });
+        div.addEventListener("click", () => abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id)));
         contatosBox.appendChild(div);
       }
     });
   });
 }
 
-// ---------------- ENVIO DE MENSAGEM ----------------
+// ---------------- ENVIO ----------------
 btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -95,7 +90,7 @@ btnSend.addEventListener("click", async () => {
 });
 
 // ---------------- LOGIN ----------------
-loginBtn.addEventListener("click", async ()=>{
+loginBtn.addEventListener("click", async () => {
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
   }catch(err){
@@ -104,12 +99,12 @@ loginBtn.addEventListener("click", async ()=>{
 });
 
 // ---------------- LOGOUT ----------------
-logoutBtn.addEventListener("click", async ()=>{
+logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
 });
 
 // ---------------- AUTENTICAÇÃO ----------------
-onAuthStateChanged(auth, user=>{
+onAuthStateChanged(auth, user => {
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
