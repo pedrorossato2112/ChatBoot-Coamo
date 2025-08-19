@@ -6,6 +6,7 @@ import {
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+// ---------------- CONFIG FIREBASE ----------------
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -18,8 +19,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// ---------------- CONSTANTES ----------------
 const ATENDENTE_EMAIL = "rossato.pedrinho@gmail.com";
 
+// ---------------- ELEMENTOS ----------------
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const emailInput = document.getElementById("email");
@@ -34,6 +37,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
 
+// ---------------- FUNÇÕES ----------------
 function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
@@ -59,7 +63,7 @@ async function abrirConversa(conversaId){
   });
 }
 
-// ENVIO
+// ---------------- ENVIO DE MENSAGEM ----------------
 btnSend.addEventListener("click", async () => {
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -71,7 +75,7 @@ btnSend.addEventListener("click", async () => {
   inputMsg.value = "";
 });
 
-// LOGIN
+// ---------------- LOGIN ----------------
 loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
@@ -80,28 +84,35 @@ loginBtn.addEventListener("click", async ()=>{
   }
 });
 
-// REGISTRO
+// ---------------- REGISTRO ----------------
 registerBtn.addEventListener("click", async ()=>{
   try{
     const cred = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+
+    // Cria usuário na coleção users como "chamado"
     await setDoc(doc(db, "users", cred.user.email), {
       tipo: "chamado",
       email: cred.user.email,
       nickname: cred.user.email
     });
-    abrirConversa(gerarIdConversa(cred.user.email, ATENDENTE_EMAIL));
+
+    // Abre conversa com suporte automaticamente
+    const conversaId = gerarIdConversa(cred.user.email, ATENDENTE_EMAIL);
+    await setDoc(doc(db, "conversas", conversaId), {}); // Garante que a conversa exista
+    abrirConversa(conversaId);
+
     alert("Cadastro realizado com sucesso!");
   }catch(err){
     alert("Erro no registro: " + err.message);
   }
 });
 
-// LOGOUT
+// ---------------- LOGOUT ----------------
 logoutBtn.addEventListener("click", async ()=>{
   await signOut(auth);
 });
 
-// AUTENTICAÇÃO
+// ---------------- AUTENTICAÇÃO ----------------
 onAuthStateChanged(auth, user=>{
   if(user){
     loginDiv.style.display = "none";
