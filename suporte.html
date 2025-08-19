@@ -18,24 +18,29 @@
     </div>
   </div>
 
+  <!-- CHAT SUPORTE -->
   <div id="chatDiv">
+
+    <!-- ---------------- Sidebar com lista de clientes ---------------- -->
     <div class="sidebar">
-      <h2>Clientes</h2>
-      <div id="contatosBox"></div>
+      <h2>Lista de Chamados</h2>
+      <div id="contatosBox">
+        <!-- Aqui serão listados todos os clientes (chamados) -->
+      </div>
     </div>
 
-
+    <!-- Área de mensagens -->
     <div class="mainChat">
       <div id="chat-box"></div>
 
+      <!-- Input de mensagem -->
       <div class="inputArea">
         <input type="text" id="input-msg" placeholder="Digite sua mensagem...">
         <button id="btn-send">Enviar</button>
       </div>
 
-      <div style="margin-top: 10px; text-align: right;">
-        <button id="logoutBtn" class="logoutBtn">Sair</button>
-      </div>
+      <!-- Botão logout separado -->
+      <button id="logoutBtn" class="logoutBtn">Sair</button>
     </div>
   </div>
 
