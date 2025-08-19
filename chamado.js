@@ -1,10 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { 
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
@@ -59,56 +55,31 @@ async function abrirConversa(conversaId){
   });
 }
 
-// ENVIO DE MENSAGEM
-btnSend.addEventListener("click", async () => {
+btnSend.addEventListener("click", async ()=>{
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
-  await addDoc(ref, {
-    texto: inputMsg.value.trim(),
-    usuario: auth.currentUser.email,
-    timestamp: serverTimestamp()
-  });
+  await addDoc(ref, { texto: inputMsg.value.trim(), usuario: auth.currentUser.email, timestamp: serverTimestamp() });
   inputMsg.value = "";
 });
 
-// LOGIN
 loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-  }catch(err){
-    alert("Erro no login: " + err.message);
-  }
+  }catch(err){ alert("Erro no login: " + err.message); }
 });
 
-// REGISTRO
 registerBtn.addEventListener("click", async ()=>{
   try{
     const cred = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-    await setDoc(doc(db, "users", cred.user.email), {
-      tipo: "chamado",
-      email: cred.user.email,
-      nickname: cred.user.email
-    });
+    await setDoc(doc(db, "users", cred.user.email), { tipo:"chamado", email:cred.user.email, nickname:cred.user.email });
     abrirConversa(gerarIdConversa(cred.user.email, SUPORTE_EMAIL));
     alert("Cadastro realizado com sucesso!");
-  }catch(err){
-    alert("Erro no registro: " + err.message);
-  }
+  }catch(err){ alert("Erro no registro: " + err.message); }
 });
 
-// LOGOUT
-logoutBtn.addEventListener("click", async ()=>{
-  await signOut(auth);
-});
+logoutBtn.addEventListener("click", async ()=>{ await signOut(auth); });
 
-// AUTENTICAÇÃO
-onAuthStateChanged(auth, async user=>{
-  if(user){
-    loginDiv.style.display = "none";
-    chatDiv.style.display = "flex";
-    abrirConversa(gerarIdConversa(user.email, SUPORTE_EMAIL));
-  }else{
-    loginDiv.style.display = "flex";
-    chatDiv.style.display = "none";
-  }
+onAuthStateChanged(auth, user=>{
+  if(user){ loginDiv.style.display="none"; chatDiv.style.display="flex"; abrirConversa(gerarIdConversa(user.email, SUPORTE_EMAIL)); }
+  else{ loginDiv.style.display="flex"; chatDiv.style.display="none"; }
 });
