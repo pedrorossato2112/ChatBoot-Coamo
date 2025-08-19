@@ -56,11 +56,12 @@ body {
 #loginBtn:hover { background: #388e3c; }
 #registerBtn:hover { background: #66bb6a; }
 
+
 /* ---------------- CHAT ---------------- */
 #chatDiv {
   display: none;
   width: 95%;
-  max-width: 1000px;
+  max-width: 1100px;
   height: 80vh;
   display: flex;
   border-radius: 12px;
@@ -69,26 +70,29 @@ body {
   background: #fff;
 }
 
-/* Sidebar clientes */
+/* Sidebar clientes - só aparece para suporte */
 .sidebar {
-  width: 220px;
+  width: 250px;
   background: #e0f2f1;
   padding: 15px;
   display: flex;
   flex-direction: column;
+  border-right: 2px solid #b2dfdb;
 }
 
 .sidebar h2 {
   margin-top: 0;
   text-align: center;
   color: #00796b;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 #contatosBox {
   flex: 1;
   overflow-y: auto;
   border: 1px solid #b2dfdb;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #f1f8f7;
   padding: 5px;
   margin-top: 10px;
@@ -98,9 +102,10 @@ body {
   padding: 10px;
   margin: 5px 0;
   background: #b2dfdb;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: bold;
   transition: 0.2s;
 }
 
@@ -133,7 +138,6 @@ body {
   border-radius: 16px;
   margin-bottom: 8px;
   max-width: 70%;
-  position: relative;
   word-wrap: break-word;
 }
 
@@ -143,6 +147,7 @@ body {
 /* Input de mensagem */
 .inputArea {
   display: flex;
+  margin-bottom: 10px;
 }
 
 .inputArea input {
@@ -163,8 +168,11 @@ body {
 
 .inputArea button:hover { background: #388e3c; }
 
-/* Botão logout separado */
+/* Botão logout */
 .logoutBtn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
   background: #e53935;
   border: none;
   border-radius: 6px;
@@ -209,6 +217,8 @@ body {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
+    border-right: none;
+    border-bottom: 2px solid #b2dfdb;
   }
 
   .contatoItem {
