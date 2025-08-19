@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
@@ -39,6 +39,7 @@ function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
 
+// Abrir conversa com um cliente
 async function abrirConversa(conversaId){
   conversaIdAtual = conversaId;
   if(unsubscribeMensagens) unsubscribeMensagens();
@@ -60,17 +61,21 @@ async function abrirConversa(conversaId){
   });
 }
 
+// Atualizar lista de clientes e monitorar mensagens novas
 function atualizarClientes(){
   const clientesRef = collection(db, "users");
   onSnapshot(clientesRef, snapshot => {
     contatosBox.innerHTML = "";
     snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
-      if(data.tipo === "cliente"){ // só clientes
+      if(data.tipo === "chamado"){ // só clientes
         const div = document.createElement("div");
         div.classList.add("contatoItem");
         div.textContent = data.nickname || data.email;
+
+        // Ao clicar, abrir conversa
         div.addEventListener("click", () => abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id)));
+
         contatosBox.appendChild(div);
       }
     });
@@ -90,7 +95,7 @@ btnSend.addEventListener("click", async () => {
 });
 
 // ---------------- LOGIN ----------------
-loginBtn.addEventListener("click", async () => {
+loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
   }catch(err){
@@ -99,12 +104,12 @@ loginBtn.addEventListener("click", async () => {
 });
 
 // ---------------- LOGOUT ----------------
-logoutBtn.addEventListener("click", async () => {
+logoutBtn.addEventListener("click", async ()=>{
   await signOut(auth);
 });
 
 // ---------------- AUTENTICAÇÃO ----------------
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, user=>{
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
