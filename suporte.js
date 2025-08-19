@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc, deleteDoc 
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged 
@@ -19,9 +19,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const ATENDENTE_EMAIL = "seuemail@dominio.com"; // <-- coloque aqui o email do atendente
-
-// ---------------- ELEMENTOS ----------------
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const emailInput = document.getElementById("email");
@@ -41,7 +38,6 @@ const sidebar = document.querySelector(".sidebar");
 
 let conversaIdAtual = null;
 let unsubscribeMensagens = null;
-let apelidosCache = {};
 
 function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
@@ -54,21 +50,21 @@ async function abrirConversa(conversaId){
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
   
-  unsubscribeMensagens = onSnapshot(q, async snapshot => {
+  unsubscribeMensagens = onSnapshot(q, snapshot => {
     chatBox.innerHTML = "";
-    for(const docSnap of snapshot.docs){
+    snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
       const msgEl = document.createElement("div");
       msgEl.classList.add("msg");
       msgEl.classList.add(data.usuario === auth.currentUser.email ? "own" : "friend");
       msgEl.textContent = data.texto;
       chatBox.appendChild(msgEl);
-    }
+    });
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
 
-btnSend.addEventListener("click", async ()=>{
+btnSend.addEventListener("click", async ()=> {
   const texto = inputMsg.value.trim();
   if(!texto || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
@@ -80,47 +76,81 @@ btnSend.addEventListener("click", async ()=>{
   inputMsg.value = "";
 });
 
-loginBtn.addEventListener("click", async ()=>{
-  try{
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-  }catch(err){
+// ------------------- LOGIN -------------------
+loginBtn.addEventListener("click", async ()=> {
+  const email = emailInput.value.trim();
+  const senha = passwordInput.value.trim();
+
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+  } catch(err) {
     alert("Erro no login: "+err.message);
   }
 });
 
-registerBtn.addEventListener("click", async ()=>{
-  try{
-    await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-    alert("Usuário registrado com sucesso!");
-  }catch(err){
+// ------------------- REGISTRO -------------------
+registerBtn.addEventListener("click", async ()=> {
+  const email = emailInput.value.trim();
+  const senha = passwordInput.value.trim();
+  const apelido = nicknameInput.value.trim() || email;
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+    await setDoc(doc(db, "users", email), {
+      tipo: "chamado",
+      nickname: apelido
+    });
+    alert("Cadastro realizado! Faça login.");
+  } catch(err) {
     alert("Erro no registro: "+err.message);
   }
 });
 
-onAuthStateChanged(auth, async (user)=>{
+// ------------------- AUTENTICAÇÃO -------------------
+onAuthStateChanged(auth, async (user)=> {
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
 
-    if(user.email === ATENDENTE_EMAIL){
-      sidebar.style.display = "flex"; // atendente vê os clientes
+    const userDoc = await getDoc(doc(db, "users", user.email));
+    if(!userDoc.exists()) return alert("Usuário não encontrado!");
+
+    const tipo = userDoc.data().tipo;
+    userApelidoDisplay.textContent = userDoc.data().nickname || user.email;
+
+    if(tipo === "suporte"){
+      sidebar.style.display = "flex"; 
+      const q = query(collection(db, "users"));
+      onSnapshot(q, snapshot => {
+        contatosBox.innerHTML = "";
+        snapshot.docs.forEach(d => {
+          if(d.data().tipo === "chamado"){
+            const div = document.createElement("div");
+            div.textContent = d.data().nickname;
+            div.classList.add("contatoItem");
+            div.addEventListener("click", ()=> abrirConversa(gerarIdConversa(user.email, d.id)));
+            contatosBox.appendChild(div);
+          }
+        });
+      });
     } else {
-      sidebar.style.display = "none"; // cliente só vê você
-      abrirConversa(gerarIdConversa(user.email, ATENDENTE_EMAIL));
+      sidebar.style.display = "none"; 
+      const suporteQ = await getDoc(doc(db, "users", "seuemail@dominio.com"));
+      if(suporteQ.exists()) abrirConversa(gerarIdConversa(user.email, "seuemail@dominio.com"));
     }
-  }else{
+  } else {
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";
   }
 });
 
-saveNicknameBtn.addEventListener("click", async ()=>{
+saveNicknameBtn.addEventListener("click", async ()=> {
   const nick = nicknameInput.value.trim();
   if(!nick) return alert("Digite um apelido!");
   userApelidoDisplay.textContent = nick;
   nicknameModal.style.display = "none";
 });
 
-logoutBtn.addEventListener("click", async ()=>{
+logoutBtn.addEventListener("click", async ()=> {
   await signOut(auth);
 });
