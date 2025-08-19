@@ -1,11 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc 
+  getFirestore, collection, query, onSnapshot, orderBy, addDoc, serverTimestamp, doc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+// FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAEDs-1LS6iuem9Pq7BkMwGlQb14vKEM_g",
   authDomain: "chatboot--coamo.firebaseapp.com",
@@ -18,6 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// ELEMENTOS
 const loginDiv = document.getElementById("loginDiv");
 const chatDiv = document.getElementById("chatDiv");
 const emailInput = document.getElementById("email");
@@ -36,6 +38,7 @@ function gerarIdConversa(usuario1, usuario2){
   return [usuario1, usuario2].sort().join("_");
 }
 
+// ABRIR CONVERSA
 async function abrirConversa(conversaId){
   conversaIdAtual = conversaId;
   if(unsubscribeMensagens) unsubscribeMensagens();
@@ -43,9 +46,9 @@ async function abrirConversa(conversaId){
   const mensagensRef = collection(db, "conversas", conversaId, "mensagens");
   const q = query(mensagensRef, orderBy("timestamp"));
 
-  unsubscribeMensagens = onSnapshot(q, snapshot => {
+  unsubscribeMensagens = onSnapshot(q, snapshot=>{
     chatBox.innerHTML = "";
-    snapshot.docs.forEach(docSnap => {
+    snapshot.docs.forEach(docSnap=>{
       const data = docSnap.data();
       const msgEl = document.createElement("div");
       msgEl.classList.add("msg");
@@ -57,26 +60,28 @@ async function abrirConversa(conversaId){
   });
 }
 
-// Atualizar lista de clientes
-function atualizarClientes(){
-  const clientesRef = collection(db, "users");
-  onSnapshot(clientesRef, snapshot => {
+// ATUALIZAR LISTA DE CHAMADOS
+function atualizarChamados(){
+  const chamadosRef = collection(db, "users");
+  onSnapshot(chamadosRef, snapshot=>{
     contatosBox.innerHTML = "";
-    snapshot.docs.forEach(docSnap => {
+    snapshot.docs.forEach(docSnap=>{
       const data = docSnap.data();
       if(data.tipo === "chamado"){
         const div = document.createElement("div");
         div.classList.add("contatoItem");
         div.textContent = data.nickname || data.email;
-        div.addEventListener("click", () => abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id)));
+        div.addEventListener("click", ()=>{
+          abrirConversa(gerarIdConversa(auth.currentUser.email, docSnap.id));
+        });
         contatosBox.appendChild(div);
       }
     });
   });
 }
 
-// ENVIO DE MENSAGENS
-btnSend.addEventListener("click", async () => {
+// ENVIO DE MENSAGEM
+btnSend.addEventListener("click", async ()=>{
   if(!inputMsg.value.trim() || !conversaIdAtual) return;
   const ref = collection(db, "conversas", conversaIdAtual, "mensagens");
   await addDoc(ref, {
@@ -92,7 +97,7 @@ loginBtn.addEventListener("click", async ()=>{
   try{
     await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
   }catch(err){
-    alert("Erro no login: " + err.message);
+    alert("Erro no login: "+err.message);
   }
 });
 
@@ -102,11 +107,11 @@ logoutBtn.addEventListener("click", async ()=>{
 });
 
 // AUTENTICAÇÃO
-onAuthStateChanged(auth, user=>{
+onAuthStateChanged(auth, async user=>{
   if(user){
     loginDiv.style.display = "none";
     chatDiv.style.display = "flex";
-    atualizarClientes();
+    atualizarChamados();
   }else{
     loginDiv.style.display = "flex";
     chatDiv.style.display = "none";
